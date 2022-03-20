@@ -17,6 +17,8 @@ set(
     analizadores/analizador_sintactico.h
     auxiliares/definiciones.h
     auxiliares/tabla_simbolos.h
+    auxiliares/errores.h
+    sistema_entrada.h
 )
 
 set(
@@ -24,6 +26,8 @@ set(
     analizadores/analizador_lexico.c
     analizadores/analizador_sintactico.c
     auxiliares/tabla_simbolos.c
+    auxiliares/errores.c
+    sistema_entrada.c
     main.c
 )
 

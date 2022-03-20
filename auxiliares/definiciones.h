@@ -43,8 +43,9 @@ typedef struct comp_lexico
 #define OPERADOR_MULT 606
 #define OPERADOR_DIV 607
 #define OPERADOR_RANGO 608
+#define OPERADOR_MENOR 609
 
-#define EOF 700
+#define LIMITE_EOF 700
 
 
 #endif
