@@ -617,7 +617,9 @@ comp_lexico sig_comp_lexico()
 
     fin_lexema();
 
-    caracterActual = siguiente_caracter();
+    if (caracterActual != EOF) {
+        caracterActual = siguiente_caracter();
+    }
 
     return componente;
 }
