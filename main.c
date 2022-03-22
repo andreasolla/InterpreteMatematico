@@ -5,6 +5,7 @@
 
 #include "sistema_entrada.h"
 #include "analizadores/analizador_sintactico.h"
+#include "auxiliares/tabla_simbolos.h"
 
 
 int main(int argc, char *argv[])
@@ -12,11 +13,13 @@ int main(int argc, char *argv[])
     char caracterActual;
 
 
-    printf("Inicio \n");
-    //preparar_cosillas();
+    crear_tabla();
+    imprimir_tabla();
 
     realizar_analisis();
 
+    imprimir_tabla();
+    destruir_tabla();
 
     // caracterActual = siguiente_caracter();
     // printf("%c\n", caracterActual);

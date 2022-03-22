@@ -25,6 +25,7 @@ set(
     SOURCES 
     analizadores/analizador_lexico.c
     analizadores/analizador_sintactico.c
+    auxiliares/definiciones.c
     auxiliares/tabla_simbolos.c
     auxiliares/errores.c
     sistema_entrada.c

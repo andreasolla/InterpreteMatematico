@@ -17,6 +17,9 @@ typedef struct comp_lexico
 #define KW_RANGE 306
 #define KW_VAR 307
 
+char *kw_lexemas[8];
+int kw_comp_lexicos[8];
+
 #define ID 400
 #define STRING 401
 #define INTEGER 402

@@ -1,6 +1,7 @@
 #include "analizador_lexico.h"
 
 #include "../sistema_entrada.h"
+#include "../auxiliares/tabla_simbolos.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,7 +39,6 @@ void automata_alfanumerico()
     while (isalnum(caracterActual) ||
            caracterActual == '_')
     {
-        // printf("%c", caracterActual);
         caracterActual = siguiente_caracter();
         size++;
     }
@@ -372,6 +372,7 @@ void automata_operadores()
     {
     case '+':
         estado = 1;
+        componente.componente_lexico = OPERADOR_SUMA;
         break;
     case '-':
         estado = 5;
@@ -603,8 +604,10 @@ comp_lexico sig_comp_lexico()
 
     componente.lexema = malloc(size);
     strcpy(componente.lexema, pedir_lexema());
-    // componente.componente_lexico = 300; //Aqui tengo que ir a la tabla de simbolos o lo que sea
-    // printf("%s\n", componente.lexema);
+    
+    if(componente.componente_lexico == ID) {
+        componente.componente_lexico = buscar_lexema(componente.lexema);
+    }
 
     if (caracterActual == EOF)
     {
