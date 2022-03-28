@@ -8,10 +8,11 @@
 void iniciar_sistema_entrada();
 char siguiente_caracter();
 char *pedir_lexema();
+void liberar_lexema(char *cadena);
 void fin_lexema();
 void retroceder();
 void terminar();
-
+int fin_alcanzado();
 
 
 #endif

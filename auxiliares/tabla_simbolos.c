@@ -1,6 +1,5 @@
 #include "tabla_simbolos.h"
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -76,10 +75,11 @@ void imprimir_tabla()
 {
     elemento_tabla *iterador, *tmp;
 
-    printf("╓───────────────TABLA DE SIMBOLOS───────────────╖\n");
-    printf("║┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┬┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄║\n");
+    printf("╔═══════════════════════════════════════════════╗\n");
+    printf("║\t\tTABLA DE SIMBOLOS\t\t║\n");
+    printf("╟───────────────────────┬───────────────────────╢\n");
     printf("║\tlexema\t\t│\tcomponente\t║\n");
-    printf("║┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄│┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄║\n");
+    printf("╟───────────────────────┼───────────────────────╢\n");
     HASH_ITER(hh, tabla_simbolos, iterador, tmp) {
         printf("║\t%s\t\t│\t%d\t\t║\n", iterador->id, iterador->componente_lexico);
     }

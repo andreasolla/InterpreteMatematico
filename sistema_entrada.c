@@ -1,5 +1,7 @@
 #include "sistema_entrada.h"
 
+#include "auxiliares/errores.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,6 +14,8 @@ char *buffer_actual;
 char *buffer_siguiente;
 char *delantero, *inicio;
 int siguiente_ya_cargado;
+int error_ya_lanzado;
+int fin_de_fichero;
 
 void _cambiar_buffer()
 {
@@ -33,7 +37,7 @@ void _cargar_buffer()
     if (!siguiente_ya_cargado)
     { // compruebo si no se ha cargado ya por temas de retroceso
         elem_leidos = fread(buffer_actual, sizeof(char), TAM_BUFFER, codigo);
-        
+
         // Si el fragmento leido no da para rellenar el buffer, se ha llegado al final del fichero
         if (elem_leidos != TAM_BUFFER)
         {
@@ -57,7 +61,7 @@ void _abrir_fichero()
 
 void _iniciar_buffer()
 {
-    bufferA = malloc((TAM_BUFFER + 1) * sizeof(char)); // añado 1 posicion para el EOF
+    bufferA = malloc((TAM_BUFFER + 1) * sizeof(char)); // añado 1 posicion para el centinela
     bufferB = malloc((TAM_BUFFER + 1) * sizeof(char));
 
     // Añado el centinela
@@ -73,22 +77,38 @@ void _iniciar_buffer()
     inicio = buffer_actual;
     delantero = buffer_actual;
     siguiente_ya_cargado = 0;
+    error_ya_lanzado = 0;
+    fin_de_fichero = 0;
 }
 
 void _incrementar_delantero()
 {
-    // if (*delantero != EOF)
-    // {
-        delantero++;
-    // }
-    /*else*/ if (delantero == (buffer_actual + TAM_BUFFER)) // si está en la ultima posición del buffer actual
-    {
-        _cargar_buffer(); // cargo el siguiente buffer
-        delantero = buffer_actual;
-    }
+    delantero++;
 
-    else if(*delantero == EOF) {
-        printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
+    if (*delantero == EOF)
+    {
+
+        // O bien final de buffer
+        if (delantero == (buffer_actual + TAM_BUFFER))
+        {
+            _cargar_buffer(); // cargo el siguiente buffer
+            delantero = buffer_actual;
+        }
+        else
+        {
+            fin_de_fichero = 1;
+        }
+    }
+}
+
+void _incrementar_inicio()
+{
+    inicio++;
+
+    if (*inicio == EOF)
+    {
+        // Final de buffer
+        inicio = buffer_actual;
     }
 }
 
@@ -110,7 +130,7 @@ int _tam_lexema()
 
     if (_apuntan_distinto_buffer())
     {
-        size = ((buffer_siguiente + TAM_BUFFER ) - inicio) + (delantero - buffer_actual);
+        size = ((buffer_siguiente + TAM_BUFFER) - inicio) + (delantero - buffer_actual);
     }
     else
     {
@@ -118,6 +138,16 @@ int _tam_lexema()
     }
 
     return (size / sizeof(char));
+}
+
+int _tam_excedido()
+{
+    // Si la distancia entre inicio y delantero es mayor que el tamaño de un buffer, se excede el tamaño máximo de lexema
+    if (_apuntan_distinto_buffer() && ((inicio - buffer_siguiente) <= (delantero - buffer_actual)))
+    {
+        return 1;
+    }
+    return 0;
 }
 
 // Funciones públicas
@@ -136,13 +166,24 @@ char siguiente_caracter()
 
     _incrementar_delantero();
 
+    if (_tam_excedido())
+    {
+        _incrementar_inicio(); // avanzo inicio una posición
+        // error de tamaño maximo
+        if (!error_ya_lanzado)
+        {
+            error(ERROR_TAM_LEXEMA_EXCEDIDO);
+            error_ya_lanzado = 1; // Marco el error para que no se vuelva a dar en el mismo lexema
+        }
+    }
+
     return aux;
 }
 
 char *pedir_lexema()
 {
     int aux, tamano = _tam_lexema();
-    char *cadena = malloc((tamano+1)*sizeof(char));
+    char *cadena = malloc((tamano + 1) * sizeof(char));
 
     if (_apuntan_distinto_buffer())
     {
@@ -154,14 +195,20 @@ char *pedir_lexema()
     {
         memcpy(cadena, inicio, tamano * sizeof(char));
     }
-    cadena[tamano] = '\0'; //añado el fin de cadena ya que memcpy no lo introduce
+    cadena[tamano] = '\0'; // añado el fin de cadena ya que memcpy no lo introduce
 
     return cadena;
+}
+
+void liberar_lexema(char *cadena)
+{
+    free(cadena);
 }
 
 void fin_lexema()
 {
     inicio = delantero;
+    error_ya_lanzado = 0;
 }
 
 void retroceder()
@@ -185,4 +232,8 @@ void terminar()
     free(bufferB);
 
     fclose(codigo);
+}
+
+int fin_alcanzado() {
+    return fin_de_fichero;
 }

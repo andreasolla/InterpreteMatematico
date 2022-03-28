@@ -8,7 +8,8 @@
 void inicializar_analizador_lexico();
 void finalizar_analisis();
 
-comp_lexico sig_comp_lexico();
+comp_lexico *sig_comp_lexico();
+void destruir_comp_lexico(comp_lexico *cp);
 
 
 #endif

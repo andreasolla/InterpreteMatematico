@@ -154,7 +154,6 @@ p
 <604,+>
 <400,j>
 <501,)>
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 <505,}>
 eof alcanzado
 añadiendo eof
