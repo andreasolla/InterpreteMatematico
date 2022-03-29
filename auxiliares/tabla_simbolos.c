@@ -10,7 +10,10 @@
 elemento_tabla *tabla_simbolos;
 
 
-void anadir(char *cadena, int comp_lexico) {
+//---------------------------------- Funciones privadas
+
+//Función para insertar elementos en la tabla
+void _anadir(char *cadena, int comp_lexico) {
     elemento_tabla *el;
 
     el = malloc(sizeof(elemento_tabla));
@@ -22,8 +25,8 @@ void anadir(char *cadena, int comp_lexico) {
     HASH_ADD_KEYPTR(hh, tabla_simbolos, el->id, strlen(el->id), el);
 }
 
-//Si devuelve NULL el elemento no está, si no, devuelve el elemento
-elemento_tabla *buscar(char *cadena) {
+//Función que devuelve NULL si el elemento no está, si no, devuelve el elemento
+elemento_tabla *_buscar(char *cadena) {
     elemento_tabla *el;
     HASH_FIND_STR(tabla_simbolos, cadena, el);
 
@@ -31,8 +34,9 @@ elemento_tabla *buscar(char *cadena) {
 }
 
 
-//Funciones publicas
+//---------------------------------- Funciones publicas
 
+//Función que crea la tabla y la inicializa con las keywords
 void crear_tabla()
 {
     tabla_simbolos = NULL;
@@ -40,26 +44,27 @@ void crear_tabla()
 
     //Introduzco las palabras claves
     for(i = 0; i < 8; i++) {
-        anadir(kw_lexemas[i], kw_comp_lexicos[i]); 
+        _anadir(kw_lexemas[i], kw_comp_lexicos[i]); 
     }
 }
 
-// devuelve el código del identificador o la palabra clave
+//Función que devuelve el código del identificador o la palabra clave
 int buscar_lexema(char *lexema)
 {
     int codigo;
-    elemento_tabla *el = buscar(lexema);
+    elemento_tabla *el = _buscar(lexema);
 
     if(el != NULL) {
         codigo = el->componente_lexico;
     } else{
-        anadir(lexema, ID); //Si no esta en la tabla, es un identificador
+        _anadir(lexema, ID); //Si no esta en la tabla, es un identificador
         codigo = ID;
     }
 
     return codigo;
 }
 
+//Función que vacía la tabla y libera la memoria
 void destruir_tabla()
 {
     elemento_tabla *iterador, *tmp;
@@ -71,6 +76,7 @@ void destruir_tabla()
     }
 }
 
+//Función para imprimir la tabla
 void imprimir_tabla()
 {
     elemento_tabla *iterador, *tmp;

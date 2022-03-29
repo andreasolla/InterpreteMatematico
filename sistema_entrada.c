@@ -1,6 +1,7 @@
 #include "sistema_entrada.h"
 
 #include "auxiliares/errores.h"
+#include "analizadores/analizador_lexico.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +17,9 @@ char *delantero, *inicio;
 int siguiente_ya_cargado;
 int error_ya_lanzado;
 int fin_de_fichero;
+
+
+//---------------------------------- Funciones privadas
 
 void _cambiar_buffer()
 {
@@ -150,7 +154,7 @@ int _tam_excedido()
     return 0;
 }
 
-// Funciones públicas
+//---------------------------------- Funciones públicas
 
 void iniciar_sistema_entrada()
 {
@@ -172,7 +176,7 @@ char siguiente_caracter()
         // error de tamaño maximo
         if (!error_ya_lanzado)
         {
-            error(ERROR_TAM_LEXEMA_EXCEDIDO);
+            error(ERROR_TAM_LEXEMA_EXCEDIDO, lineaActual());
             error_ya_lanzado = 1; // Marco el error para que no se vuelva a dar en el mismo lexema
         }
     }

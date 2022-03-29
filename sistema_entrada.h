@@ -2,7 +2,7 @@
 #define sistema_entrada_h
 
 
-#define TAM_BUFFER 32 //tamaño de cada uno de los 2 buffers (tam máximo de lexema)
+#define TAM_BUFFER 64 //tamaño de cada uno de los 2 buffers (tam máximo de lexema)
 
 
 void iniciar_sistema_entrada();

@@ -12,12 +12,20 @@
 char caracterActual;
 int size;
 comp_lexico componente;
-int _anade_punto_y_coma = 0;
+int anade_punto_y_coma;
+int numLinea;
+int fin;
 
+
+//---------------------------------- Funciones privadas
+
+// Función que devuelve 1 si el caracter es un operador
 int _isoperador(char caracter)
 {
     return (caracter == '+') || (caracter == '-') || (caracter == '*') || (caracter == '/') || (caracter == '=') || (caracter == ':') || (caracter == '<');
 }
+
+// Autómatas para el procesado de lexemas
 
 void _automata_alfanumerico()
 {
@@ -31,6 +39,9 @@ void _automata_alfanumerico()
         size++;
     }
 
+    /*Este autómata reconoce cuando llega algún caracter que
+    no forma parte de la cadena, por lo que hay que retroceder
+    una posición al finalizar para no perder ese caracter*/
     retroceder();
 }
 
@@ -50,7 +61,7 @@ void _automata_strings()
             {
                 estado = 1;
             }
-            else if (caracterActual == '\\')
+            else if (caracterActual == '\\') // caracter de escape
             {
                 estado = 2;
             }
@@ -62,7 +73,7 @@ void _automata_strings()
         case 2:
             if (caracterActual != '"')
             {
-                // error de string mal formado
+                error(ERROR_STRING_MAL_FORMADO, numLinea);
             }
             estado = 1;
             break;
@@ -169,35 +180,35 @@ void _automata_separadores()
     {
     case '(':
         componente.componente_lexico = SEPARADOR_PAR_IZQ;
-        _anade_punto_y_coma = 0;
+        anade_punto_y_coma = 0;
         break;
     case ')':
         componente.componente_lexico = SEPARADOR_PAR_DER;
-        _anade_punto_y_coma = 1;
+        anade_punto_y_coma = 1;
         break;
     case '[':
         componente.componente_lexico = SEPARADOR_COR_IZQ;
-        _anade_punto_y_coma = 0;
+        anade_punto_y_coma = 0;
         break;
     case ']':
         componente.componente_lexico = SEPARADOR_COR_DER;
-        _anade_punto_y_coma = 1;
+        anade_punto_y_coma = 1;
         break;
     case '{':
         componente.componente_lexico = SEPARADOR_LLAVE_IZQ;
-        _anade_punto_y_coma = 0;
+        anade_punto_y_coma = 0;
         break;
     case '}':
         componente.componente_lexico = SEPARADOR_LLAVE_DER;
-        _anade_punto_y_coma = 1;
+        anade_punto_y_coma = 1;
         break;
     case ',':
         componente.componente_lexico = SEPARADOR_COMA;
-        _anade_punto_y_coma = 0;
+        anade_punto_y_coma = 0;
         break;
     case '.':
         componente.componente_lexico = SEPARADOR_PUNTO;
-        _anade_punto_y_coma = 0;
+        anade_punto_y_coma = 0;
         break;
     default:
         break;
@@ -263,7 +274,7 @@ void _automata_numeros()
             }
             else
             {
-                error(ERROR_DECIMAL_MAL_FORMADO);
+                error(ERROR_DECIMAL_MAL_FORMADO, numLinea);
                 estado = 1;
             }
             break;
@@ -279,7 +290,7 @@ void _automata_numeros()
             else if (isdigit(caracterActual))
             { // num > 7
                 estado = 8;
-                error(ERROR_OCTAL_MAL_FORMADO);
+                error(ERROR_OCTAL_MAL_FORMADO, numLinea);
             }
             else if (caracterActual == '_')
             {
@@ -307,7 +318,7 @@ void _automata_numeros()
             else if (isdigit(caracterActual))
             {
                 estado = 5;
-                error(ERROR_BINARIO_MAL_FORMADO);
+                error(ERROR_BINARIO_MAL_FORMADO, numLinea);
             }
             else if (caracterActual == 'i')
             {
@@ -329,11 +340,11 @@ void _automata_numeros()
             else if (isdigit(caracterActual))
             {
                 estado = 5;
-                error(ERROR_BINARIO_MAL_FORMADO);
+                error(ERROR_BINARIO_MAL_FORMADO, numLinea);
             }
             else
             {
-                error(ERROR_BINARIO_MAL_FORMADO);
+                error(ERROR_BINARIO_MAL_FORMADO, numLinea);
                 estado = 5;
             }
             break;
@@ -349,7 +360,7 @@ void _automata_numeros()
             else if (isdigit(caracterActual))
             {
                 estado = 8;
-                error(ERROR_OCTAL_MAL_FORMADO);
+                error(ERROR_OCTAL_MAL_FORMADO, numLinea);
             }
             else if (caracterActual == 'i')
             {
@@ -371,16 +382,16 @@ void _automata_numeros()
             else if (isdigit(caracterActual))
             {
                 estado = 8;
-                error(ERROR_OCTAL_MAL_FORMADO);
+                error(ERROR_OCTAL_MAL_FORMADO, numLinea);
             }
             else
             {
-                error(ERROR_OCTAL_MAL_FORMADO);
+                error(ERROR_OCTAL_MAL_FORMADO, numLinea);
                 estado = 8;
             }
             break;
         case 11:
-            if (isdigit(caracterActual) || (('a' <= caracterActual) && (caracterActual <= 'f')) || (('A' <= caracterActual) && (caracterActual <= 'F')))
+            if (isxdigit(caracterActual))
             {
                 estado = 20;
             }
@@ -395,17 +406,17 @@ void _automata_numeros()
             else
             {
                 estado = 20;
-                error(ERROR_HEX_MAL_FORMADO);
+                error(ERROR_HEX_MAL_FORMADO, numLinea);
             }
             break;
         case 12:
-            if (isdigit(caracterActual) || (('a' <= caracterActual) && (caracterActual <= 'f')) || (('A' <= caracterActual) && (caracterActual <= 'F')))
+            if (isxdigit(caracterActual))
             {
                 estado = 20;
             }
             else
             {
-                error(ERROR_HEX_MAL_FORMADO);
+                error(ERROR_HEX_MAL_FORMADO, numLinea);
                 estado = 20;
             }
             break;
@@ -435,7 +446,7 @@ void _automata_numeros()
             }
             else
             {
-                error(ERROR_DECIMAL_MAL_FORMADO);
+                error(ERROR_DECIMAL_MAL_FORMADO, numLinea);
                 estado = 14;
             }
             break;
@@ -447,7 +458,7 @@ void _automata_numeros()
             else
             {
                 estado = 17;
-                error(ERROR_EXP_ERRONEO);
+                error(ERROR_EXP_ERRONEO, numLinea);
             }
             break;
         case 17:
@@ -478,7 +489,7 @@ void _automata_numeros()
             }
             else
             {
-                error(ERROR_DECIMAL_MAL_FORMADO);
+                error(ERROR_DECIMAL_MAL_FORMADO, numLinea);
                 estado = 17;
             }
             break;
@@ -502,7 +513,7 @@ void _automata_numeros()
             }
             break;
         case 20:
-            if (isdigit(caracterActual) || (('a' <= caracterActual) && (caracterActual <= 'f')) || (('A' <= caracterActual) && (caracterActual <= 'F')) || (caracterActual == '+') || (caracterActual == '-'))
+            if (isxdigit(caracterActual) || (caracterActual == '+') || (caracterActual == '-'))
             {
                 estado = 20;
             }
@@ -524,6 +535,11 @@ void _automata_numeros()
                 componente.componente_lexico = COMPLEX;
                 retroceso = 0;
             }
+            else if (isalpha(caracterActual))
+            {
+                estado = 20;
+                error(ERROR_HEX_MAL_FORMADO, numLinea);
+            }
             else
             {
                 finalizado = 1;
@@ -531,7 +547,7 @@ void _automata_numeros()
             }
             break;
         case 22:
-            if (isdigit(caracterActual) || (('a' <= caracterActual) && (caracterActual <= 'f')) || (('A' <= caracterActual) && (caracterActual <= 'F')))
+            if (isxdigit(caracterActual))
             {
                 estado = 22;
             }
@@ -546,11 +562,11 @@ void _automata_numeros()
             else
             {
                 estado = 22;
-                error(ERROR_HEX_MAL_FORMADO);
+                error(ERROR_HEX_MAL_FORMADO, numLinea);
             }
             break;
         case 23:
-            if (isdigit(caracterActual) || (('a' <= caracterActual) && (caracterActual <= 'f')) || (('A' <= caracterActual) && (caracterActual <= 'F')))
+            if (isxdigit(caracterActual))
             {
                 estado = 22;
             }
@@ -561,18 +577,18 @@ void _automata_numeros()
             else
             {
                 estado = 22;
-                error(ERROR_HEX_MAL_FORMADO);
+                error(ERROR_HEX_MAL_FORMADO, numLinea);
             }
             break;
         case 24:
-            if (isdigit(caracterActual) || (('a' <= caracterActual) && (caracterActual <= 'f')) || (('A' <= caracterActual) && (caracterActual <= 'F')))
+            if (isxdigit(caracterActual))
             {
                 estado = 22;
             }
             else
             {
                 estado = 22;
-                error(ERROR_HEX_MAL_FORMADO);
+                error(ERROR_HEX_MAL_FORMADO, numLinea);
             }
             break;
         case 25:
@@ -583,7 +599,7 @@ void _automata_numeros()
             else
             {
                 estado = 26;
-                error(ERROR_EXP_ERRONEO);
+                error(ERROR_EXP_ERRONEO, numLinea);
             }
             break;
         case 26:
@@ -615,7 +631,7 @@ void _automata_numeros()
             else
             {
                 estado = 26;
-                error(ERROR_HEX_MAL_FORMADO);
+                error(ERROR_HEX_MAL_FORMADO, numLinea);
             }
             break;
         default:
@@ -684,7 +700,6 @@ int _automata_comentarios()
             else
             {
                 estado = 3;
-                // caracterActual = siguiente_caracter();
             }
             break;
         case 4:
@@ -696,14 +711,20 @@ int _automata_comentarios()
             {
                 estado = 3;
                 retroceder();
-                //caracterActual = siguiente_caracter();
             }
+        }
+        /*Si es un comentario de línea, no aumento el contador ya que al retroceder 
+        se va a procesar el salto de línea y ya se va a contar*/
+        if((estado != 3) && (estado != 4) && (caracterActual == '\n')) 
+        {
+            numLinea++;
         }
         fin_lexema(); // Como no debe cumplir el tamaño máximo, no necesito pedir el lexema y no debe dar error de tamaño excedido
     }
     return aux;
 }
 
+// Función que, a partir del primer caracter del lexema, dirige el procesado del mismo hacia el autómata correspondiente
 int _leer_lexema()
 {
     size = 1;
@@ -712,22 +733,22 @@ int _leer_lexema()
     if (isalpha(caracterActual) || caracterActual == '_')
     { // cadena alfanumerica
         _automata_alfanumerico();
-        _anade_punto_y_coma = 1; // Si se inserta un \n despues de una cadena alfanumerica se añade ;
+        anade_punto_y_coma = 1; // Si se inserta un \n despues de una cadena alfanumerica se añade ;
     }
     else if (caracterActual == '\"')
     { // strings
         _automata_strings();
-        _anade_punto_y_coma = 1; // Si se inserta un \n despues de un string se añade ;
+        anade_punto_y_coma = 1; // Si se inserta un \n despues de un string se añade ;
     }
     else if (isdigit(caracterActual) || caracterActual == '.')
     { // numeros
         _automata_numeros();
-        _anade_punto_y_coma = 1; // Si se inserta un \n despues de un número se añade ;
+        anade_punto_y_coma = 1; // Si se inserta un \n despues de un número se añade ;
     }
     else if (caracterActual == '/')
     { // comentarios
         if (_automata_comentarios() == 1)
-        { 
+        {
             fin_lexema();
             caracterActual = siguiente_caracter();
             pedir_lex = _leer_lexema(); // paso al siguiente lexema, este no me interesa
@@ -736,7 +757,7 @@ int _leer_lexema()
     else if (_isoperador(caracterActual))
     { // operadores
         _automata_operadores();
-        _anade_punto_y_coma = 0; // Si se inserta un \n despues de un operador no se añade ;
+        anade_punto_y_coma = 0; // Si se inserta un \n despues de un operador no se añade ;
     }
     else if (caracterActual == ' ')
     { // ignoro los espacios
@@ -746,9 +767,11 @@ int _leer_lexema()
     }
     else if (caracterActual == '\n')
     {
-        if (_anade_punto_y_coma)
+        numLinea++;
+        
+        if (anade_punto_y_coma)
         {
-            _anade_punto_y_coma = 0;
+            anade_punto_y_coma = 0;
             componente.componente_lexico = SEPARADOR_PUNTOYCOMA;
             pedir_lex = 0;
         }
@@ -759,12 +782,13 @@ int _leer_lexema()
             _leer_lexema(); // paso al siguiente lexema, este no me interesa
         }
         // Despues de un \n no va otro ;
-        _anade_punto_y_coma = 0;
+        anade_punto_y_coma = 0;
+        
     }
     else if (caracterActual == ';')
     {
         componente.componente_lexico = SEPARADOR_PUNTOYCOMA;
-        _anade_punto_y_coma = 0; // Si se ha añadido un punto y coma, despues no va otro
+        anade_punto_y_coma = 0; // Si se ha añadido un punto y coma, despues no va otro
     }
     else if (caracterActual == EOF)
     {
@@ -778,58 +802,74 @@ int _leer_lexema()
     return pedir_lex;
 }
 
-// Funciones públicas
 
+//---------------------------------- Funciones públicas
+
+// Función que se llama al inicio, para inicializar los elementos necesarios
 void inicializar_analizador_lexico()
 {
     iniciar_sistema_entrada();
 
     caracterActual = siguiente_caracter();
+
+    anade_punto_y_coma = 0;
+    numLinea = 1;
+    fin = 0;
 }
 
+// Función que se llama una vez finalizado el análisis léxico, para cerrar y liberar lo necesario
 void finalizar_analisis()
 {
     terminar();
 }
 
+// Función que devuelve cada componente léxico
 comp_lexico *sig_comp_lexico()
 {
-    if(!fin_alcanzado()) {
-        int copiar = _leer_lexema();
-        size++; //Añado una posicion para \0
-
-        componente.lexema = malloc(size*sizeof(char));
-
-        if (copiar)
-        {
-            char *aux = pedir_lexema();
-            strcpy(componente.lexema, aux);
-            liberar_lexema(aux);
-            //printf("no llego\n");
-        }
-        else
-        {
-            
-            strcpy(componente.lexema, ";");
-        }
-
-        if (componente.componente_lexico == ID)
-        {
-            componente.componente_lexico = buscar_lexema(componente.lexema);
-        }
-
-        fin_lexema();
-
-        caracterActual = siguiente_caracter();
-        
+    if(fin_alcanzado()) {
+        fin = 1;
     }
-    else {
-        componente.componente_lexico = LIMITE_EOF;
-        componente.lexema = "eof";
+
+    int copiar = _leer_lexema();
+    size++; // Añado una posicion para \0
+
+    componente.lexema = malloc(size * sizeof(char));
+
+    if (copiar)
+    {
+        char *aux = pedir_lexema();
+        strcpy(componente.lexema, aux);
+        liberar_lexema(aux);
     }
+    else
+    {
+
+        strcpy(componente.lexema, ";");
+    }
+
+    if (componente.componente_lexico == ID)
+    {
+        componente.componente_lexico = buscar_lexema(componente.lexema);
+    }
+
+    fin_lexema();
+    caracterActual = siguiente_caracter();
+
+    
     return &componente;
 }
 
-void destruir_comp_lexico(comp_lexico *cp) {
+// Función que se llama tras sig_comp_lexico(), para liberar la memoria reservada para el lexema
+void destruir_comp_lexico(comp_lexico *cp)
+{
     free(cp->lexema);
+}
+
+//Función que comprueba si se ha alcanzado el fin de fichero
+int finalizar() {
+    return fin;
+}
+
+int lineaActual() {
+    return numLinea;
 }

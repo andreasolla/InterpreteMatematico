@@ -14,7 +14,7 @@ typedef struct elemento_tabla
 
 
 void crear_tabla();
-int buscar_lexema(char *lexema); //devuelve el código del identificador o la palabra clave
+int buscar_lexema(char *lexema);
 void destruir_tabla();
 void imprimir_tabla();
 
