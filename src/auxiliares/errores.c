@@ -1,6 +1,6 @@
-#include "errores.h"
+#include "auxiliares/errores.h"
 
-#include "stdio.h"
+#include <stdio.h>
 
 
 void error(char *msg, int numLinea){

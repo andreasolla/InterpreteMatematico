@@ -3,7 +3,6 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "sistema_entrada.h"
 #include "analizadores/analizador_sintactico.h"
 #include "auxiliares/tabla_simbolos.h"
 

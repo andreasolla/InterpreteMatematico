@@ -1,10 +1,10 @@
-#include "tabla_simbolos.h"
+#include "auxiliares/tabla_simbolos.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "definiciones.h"
+#include "auxiliares/definiciones.h"
 
 
 elemento_tabla *tabla_simbolos;

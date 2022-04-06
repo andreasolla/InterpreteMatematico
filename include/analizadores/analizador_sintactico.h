@@ -2,7 +2,7 @@
 #define analizador_sintactico_h
 
 
-#include "../auxiliares/definiciones.h"
+#include "auxiliares/definiciones.h"
 
 void realizar_analisis();
 

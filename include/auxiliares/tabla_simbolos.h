@@ -2,7 +2,7 @@
 #define tabla_simbolos_h
 
 
-#include "uthash.h"
+#include "auxiliares/uthash.h"
 
 
 typedef struct elemento_tabla
