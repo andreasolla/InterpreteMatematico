@@ -17,9 +17,11 @@ DECIMAL_DIGIT   [0-9]
 BINARY_DIGIT    [0-1]
 OCTAL_DIGIT     [0-7]
 HEX_DIGIT       [0-9a-fA-F]
+ESPACIO         [[:blank:]]  
 
 COMENTARIOS_BLOQUE     \/\*(.|\n)*\*\/
-COMENTARIOS_LINEA       \/\/.*
+COMENTARIOS_LINEA       \/\/.*\n
+
 
 /*NUMEROS*/
 
@@ -31,11 +33,12 @@ HEX_NUM         0[xX](_?{HEX_DIGIT})*
 EXP_DECIMAL     [eE][+-]?{DECIMAL_DIGIT}(_?{DECIMAL_DIGIT})*
 EXP_HEX         [pP][+-]?{DECIMAL_DIGIT}(_?{DECIMAL_DIGIT})*
 
+
 /*TIPOS DE DATOS*/
 
 INT             {DECIMAL_NUM}|{BINARY_NUM}|{OCTAL_NUM}|{HEX_NUM}
 FLOAT           {DECIMAL_NUM}\.{DECIMAL_NUM}?{EXP_DECIMAL}?|{DECIMAL_NUM}{EXP_DECIMAL}|\.{DECIMAL_NUM}{EXP_DECIMAL}?|{HEX_NUM}(\.{HEX_DIGIT}+)?{EXP_HEX}|\.{HEX_DIGIT}+{EXP_HEX}
-COMPLEX         {DECIMAL_NUM}|{INT}|{FLOAT}
+COMPLEX         ({DECIMAL_NUM}|{INT}|{FLOAT})i
 
 STRING          \".*\"
 ID              {LETTER}({LETTER}|{DECIMAL_DIGIT})*
@@ -90,6 +93,8 @@ MENOR "<"
     num_columnas = 0;
 }
 
+{ESPACIO} /*ignoro los espacios*/
+
 {ID} {
     componente.lexema = strdup(yytext); /*malloc + strcpy*/
     componente.componente_lexico = buscar_lexema(componente.lexema);
@@ -114,20 +119,23 @@ MENOR "<"
     return &componente;
 }
 
+{SUMA}{IGUAL} {
+    componente.componente_lexico = OPERADOR_MAS_IGUAL;
+    return &componente;
+}
 
-
-{MENOR}{IGUAL} {
+{MENOR}{RESTA} {
     componente.componente_lexico = OPERADOR_ENVIO;
+    return &componente;
+}
+
+{SUMA} {
+    componente.componente_lexico = OPERADOR_SUMA;
     return &componente;
 }
 
 {RESTA} {
     componente.componente_lexico = OPERADOR_RESTA;
-    return &componente;
-}
-
-{SUMA}{IGUAL} {
-    componente.componente_lexico = OPERADOR_MAS_IGUAL;
     return &componente;
 }
 
@@ -215,7 +223,9 @@ MENOR "<"
     return &componente;
 }
 
-{COMENTARIOS_BLOQUE} | {COMENTARIOS_LINEA} /*IGNORO LOS COMENTARIOS*/
+{COMENTARIOS_BLOQUE} 
+
+{COMENTARIOS_LINEA} /*IGNORO LOS COMENTARIOS*/
 
 <<EOF>> {
     componente.componente_lexico = LIMITE_EOF;
@@ -225,6 +235,7 @@ MENOR "<"
 
 %%
 
+//Procedimiento para iniciar el análisis léxico
 void inicializar_analizador_lexico()
 {
     
@@ -240,7 +251,8 @@ void inicializar_analizador_lexico()
 }
 
 void finalizar_analisis() {
-    fclose(yyin);
+    fclose(yyin); //Cierro el archivo
+    yylex_destroy(); //Libero  la memria de yylex
 }
 
 void destruir_comp_lexico(comp_lexico *cp) {
@@ -249,3 +261,81 @@ void destruir_comp_lexico(comp_lexico *cp) {
     }
     cp->lexema = NULL;
 }
+
+/*Funciṕn para poder imprimir los lexemas 
+constantes asociados a componentes léxicas.
+Esto se hace para evitar copiar el lexema cada 
+vez que se leen componentes cuyo lexema no cambia*/
+char *obtener_constante(int comp) {
+    switch(comp) {
+        case SEPARADOR_PAR_IZQ:
+            return "(";
+            break;
+        case SEPARADOR_PAR_DER:
+            return ")";
+            break;
+        case SEPARADOR_COR_IZQ:
+            return "[";
+            break;
+        case SEPARADOR_COR_DER:
+            return "]";
+            break;
+        case SEPARADOR_LLAVE_IZQ:
+            return "{";
+            break;
+        case SEPARADOR_LLAVE_DER:
+            return "}";
+            break;
+        case SEPARADOR_COMA:
+            return ",";
+            break;
+        case SEPARADOR_PUNTO:
+            return ".";
+            break;
+        case SEPARADOR_PUNTOYCOMA:
+            return ";";
+            break;
+        case OPERADOR_ASIGNACION:
+            return "=";
+            break;
+        case OPERADOR_INICIALIZACION:
+            return ":=";
+            break;
+        case OPERADOR_MAS_IGUAL:
+            return "+=";
+            break;
+        case OPERADOR_ENVIO:
+            return "<-";
+            break;
+        case OPERADOR_SUMA:
+            return "+";
+            break;
+        case OPERADOR_RESTA:
+            return "-";
+            break;
+        case OPERADOR_MULT:
+            return "*";
+            break;
+        case OPERADOR_DIV:
+            return "/";
+            break;
+        case OPERADOR_RANGO:
+            return ":";
+            break;
+        case OPERADOR_MENOR:
+            return "<";
+            break;
+        default:
+            return "";
+    }
+}
+
+//Función para imprimir el componente según sea de lexema constante o variable
+void imprimir_componente(comp_lexico cp) {
+    if(cp.lexema != NULL) {
+        printf("<%d,%s>\n", cp.componente_lexico, cp.lexema);
+    } else {
+        printf("<%d,%s>\n", cp.componente_lexico, obtener_constante(cp.componente_lexico));
+    }
+}
+
