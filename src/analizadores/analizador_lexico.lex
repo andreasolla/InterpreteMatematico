@@ -6,7 +6,7 @@
 /*para que no intente leer otro fichero una vez llega a eof*/
 %option noyywrap
 
-/*Para contar el número de líneas*/
+/*Para contar el número de línea*/
 %option yylineno
 
 
@@ -57,6 +57,15 @@ MENOR "<"
 
 /*SEPARADORES*/
 
+P_IZQUIERDO "("
+P_DERECHO ")"
+C_IZQUIERDO "["
+C_DERECHO "]"
+L_IZQUIERDA "{"
+L_DERECHA "}"
+COMA ","
+PUNTO "."
+PUNTO_Y_COMA ";"
 
 
 /*-----CABECERA DEL .c-----*/
@@ -84,7 +93,6 @@ MENOR "<"
 %}
 
 
-
 /*-----REGLAS-----*/
 
 %%
@@ -106,6 +114,7 @@ MENOR "<"
     componente.componente_lexico = STRING;
     return &componente;
 }
+
 
  /*OPERADORES*/
 
@@ -160,47 +169,49 @@ MENOR "<"
 }
 
 
-"(" {
+ /*SEPARADORES*/
+
+{P_IZQUIERDO} {
     componente.componente_lexico = SEPARADOR_PAR_IZQ;
     return &componente;
 }
 
-")" {
+{P_DERECHO} {
     componente.componente_lexico = SEPARADOR_PAR_DER;
     return &componente;
 }
 
-"[" {
+{C_IZQUIERDO} {
     componente.componente_lexico = SEPARADOR_COR_IZQ;
     return &componente;
 }
 
-"]" {
+{C_DERECHO} {
     componente.componente_lexico = SEPARADOR_COR_DER;
     return &componente;
 }
 
-"{" {
+{L_IZQUIERDA} {
     componente.componente_lexico = SEPARADOR_LLAVE_IZQ;
     return &componente;
 }
 
-"}" {
+{L_DERECHA} {
     componente.componente_lexico = SEPARADOR_LLAVE_DER;
     return &componente;
 }
 
-"," {
+{COMA} {
     componente.componente_lexico = SEPARADOR_COMA;
     return &componente;
 }
 
-"\." {
+{PUNTO} {
     componente.componente_lexico = SEPARADOR_PUNTO;
     return &componente;
 }
 
-";" {
+{PUNTO_Y_COMA} {
     componente.componente_lexico = SEPARADOR_PUNTOYCOMA;
     return &componente;
 }
@@ -238,7 +249,6 @@ MENOR "<"
 //Procedimiento para iniciar el análisis léxico
 void inicializar_analizador_lexico()
 {
-    
     yyin = fopen("concurrentSum.go", "r"); // Abro el codigo
 
     if (yyin == NULL)
@@ -250,6 +260,7 @@ void inicializar_analizador_lexico()
     componente.lexema = NULL;
 }
 
+//Procedimientos de liberación de memoria para la finalización del análisis léxico
 void finalizar_analisis() {
     fclose(yyin); //Cierro el archivo
     yylex_destroy(); //Libero  la memria de yylex
