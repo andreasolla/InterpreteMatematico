@@ -90,6 +90,8 @@ PUNTO_Y_COMA ";"
 
     #define YY_USER_ACTION { num_columnas += yyleng; }
 
+    int anade_punto_y_coma = 0;
+
 %}
 
 
@@ -97,19 +99,18 @@ PUNTO_Y_COMA ";"
 
 %%
 
-\n {
-    num_columnas = 0;
-}
-
-{ESPACIO} /*ignoro los espacios*/
 
 {ID} {
+    anade_punto_y_coma = 1;
+
     componente.lexema = strdup(yytext); /*malloc + strcpy*/
     componente.componente_lexico = buscar_lexema(componente.lexema);
     return &componente;
 }
 
 {STRING} {
+    anade_punto_y_coma = 1;
+
     componente.lexema = strdup(yytext); /*malloc + strcpy*/
     componente.componente_lexico = STRING;
     return &componente;
@@ -119,51 +120,71 @@ PUNTO_Y_COMA ";"
  /*OPERADORES*/
 
 {IGUAL} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = OPERADOR_ASIGNACION;
     return &componente;
 }
 
 {DOS_PUNTOS}{IGUAL} {
-    componente.componente_lexico = OPERADOR_INICIALIZACION;
+    anade_punto_y_coma = 0;
+
+    componente.componente_lexico = OPERADOR_INICIALIZACION;    
     return &componente;
 }
 
 {SUMA}{IGUAL} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = OPERADOR_MAS_IGUAL;
     return &componente;
 }
 
 {MENOR}{RESTA} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = OPERADOR_ENVIO;
     return &componente;
 }
 
 {SUMA} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = OPERADOR_SUMA;
     return &componente;
 }
 
 {RESTA} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = OPERADOR_RESTA;
     return &componente;
 }
 
 {MULT} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = OPERADOR_MULT;
     return &componente;
 }
 
 {DIV} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = OPERADOR_DIV;
     return &componente;
 }
 
 {DOS_PUNTOS} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = OPERADOR_RANGO;
     return &componente;
 }
 
 {MENOR} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = OPERADOR_MENOR;
     return &componente;
 }
@@ -172,71 +193,114 @@ PUNTO_Y_COMA ";"
  /*SEPARADORES*/
 
 {P_IZQUIERDO} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = SEPARADOR_PAR_IZQ;
     return &componente;
 }
 
 {P_DERECHO} {
+    anade_punto_y_coma = 1;
+
     componente.componente_lexico = SEPARADOR_PAR_DER;
     return &componente;
 }
 
 {C_IZQUIERDO} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = SEPARADOR_COR_IZQ;
     return &componente;
 }
 
 {C_DERECHO} {
+    anade_punto_y_coma = 1;
+
     componente.componente_lexico = SEPARADOR_COR_DER;
     return &componente;
 }
 
 {L_IZQUIERDA} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = SEPARADOR_LLAVE_IZQ;
     return &componente;
 }
 
 {L_DERECHA} {
+    anade_punto_y_coma = 1;
+
     componente.componente_lexico = SEPARADOR_LLAVE_DER;
     return &componente;
 }
 
 {COMA} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = SEPARADOR_COMA;
     return &componente;
 }
 
 {PUNTO} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = SEPARADOR_PUNTO;
     return &componente;
 }
 
 {PUNTO_Y_COMA} {
+    anade_punto_y_coma = 0;
+
     componente.componente_lexico = SEPARADOR_PUNTOYCOMA;
     return &componente;
 }
 
+ /*NUMEROS*/
+
 {INT} {
+    anade_punto_y_coma = 1;
+
     componente.lexema = strdup(yytext); 
     componente.componente_lexico = INTEGER;
     return &componente;
 }
 
 {FLOAT} {
+    anade_punto_y_coma = 1;
+
     componente.lexema = strdup(yytext); 
     componente.componente_lexico = FLOAT;
     return &componente;
 }
 
 {COMPLEX} {
+    anade_punto_y_coma = 1;
+
     componente.lexema = strdup(yytext); 
     componente.componente_lexico = COMPLEX;
     return &componente;
 }
 
+ /*IGNORO LOS COMENTARIOS DE BLOQUE*/
+
 {COMENTARIOS_BLOQUE} 
 
-{COMENTARIOS_LINEA} /*IGNORO LOS COMENTARIOS*/
+ /*los comentarios de linea se interpretan como \n*/
+
+{COMENTARIOS_LINEA} | 
+\n {
+    num_columnas = 0;
+
+    if(anade_punto_y_coma) {
+        anade_punto_y_coma = 0;
+
+        componente.componente_lexico = SEPARADOR_PUNTOYCOMA;
+        return &componente;
+    }
+}
+
+{ESPACIO} /*ignoro los espacios*/
+
 
 <<EOF>> {
     componente.componente_lexico = LIMITE_EOF;
