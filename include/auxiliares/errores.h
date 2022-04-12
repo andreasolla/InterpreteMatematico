@@ -12,7 +12,6 @@
 #define ERROR_EXP_ERRONEO "Exponente inválido"
 
 
-
 //Función para la impresión de errores
 void error(char *msg, int numLinea, int numCol);
 
