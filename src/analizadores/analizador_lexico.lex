@@ -37,11 +37,11 @@ EXP_HEX         [pP][+-]?{DECIMAL_DIGIT}(_?{DECIMAL_DIGIT})*
 /*TIPOS DE DATOS*/
 
 INT             {DECIMAL_NUM}|{BINARY_NUM}|{OCTAL_NUM}|{HEX_NUM}
-FLOAT           {DECIMAL_NUM}\.{DECIMAL_NUM}?{EXP_DECIMAL}?|{DECIMAL_NUM}{EXP_DECIMAL}|\.{DECIMAL_NUM}{EXP_DECIMAL}?|{HEX_NUM}(\.{HEX_DIGIT}+)?{EXP_HEX}|\.{HEX_DIGIT}+{EXP_HEX}
+FLOAT           {DECIMAL_NUM}\.{DECIMAL_NUM}?{EXP_DECIMAL}?|{DECIMAL_NUM}{EXP_DECIMAL}|\.{DECIMAL_NUM}{EXP_DECIMAL}?|{HEX_NUM}(\.{HEX_DIGIT}*)?{EXP_HEX}|\.{HEX_DIGIT}+{EXP_HEX}
 COMPLEX         ({DECIMAL_NUM}|{INT}|{FLOAT})i
 
-STRING          \".*\"
 ID              {LETTER}({LETTER}|{DECIMAL_DIGIT})*
+STRING          \'.*\'|\".*\"
 
 
 /*OPERADORES*/
@@ -68,11 +68,24 @@ PUNTO "."
 PUNTO_Y_COMA ";"
 
 
+/*ERRORES NUMÉRICOS*/
+
+ERROR_BIN {BINARY_NUM}[{LETTER}{DECIMAL_DIGIT}]+
+ERROR_OCT {OCTAL_NUM}[{LETTER}{DECIMAL_DIGIT}]+
+ERROR_DEC {DECIMAL_NUM}[{LETTER}{DECIMAL_DIGIT}]+
+ERROR_HEX {HEX_NUM}({LETTER}|{DECIMAL_DIGIT})+
+
+EXP_DECIMAL_ERR     [eE][+-]?[{DECIMAL_DIGIT}_{LETTER}]*
+EXP_HEX_ERR         [pP][+-]?[{DECIMAL_DIGIT}_{LETTER}]*
+
+ERROR_EXP {DECIMAL_NUM}\.{DECIMAL_NUM}?{EXP_DECIMAL_ERR}|{DECIMAL_NUM}{EXP_DECIMAL_ERR}|\.{DECIMAL_NUM}{EXP_DECIMAL_ERR}|{HEX_NUM}(\.{HEX_DIGIT}*)?{EXP_HEX_ERR}|\.{HEX_DIGIT}+{EXP_HEX_ERR}
+
 /*-----CABECERA DEL .c-----*/
 %{
     #include "analizadores/analizador_lexico.h"
     #include "auxiliares/definiciones.h"
     #include "auxiliares/tabla_simbolos.h"
+    #include "auxiliares/errores.h"
 
     /*Redefino yylex para que devuelva mi estructura*/
     #define YY_DECL comp_lexico *sig_comp_lexico()
@@ -255,6 +268,7 @@ PUNTO_Y_COMA ";"
     return &componente;
 }
 
+
  /*NUMEROS*/
 
 {INT} {
@@ -280,6 +294,60 @@ PUNTO_Y_COMA ";"
     componente.componente_lexico = COMPLEX;
     return &componente;
 }
+
+
+ /*ERRORES*/
+
+{ERROR_BIN} {
+    error(ERROR_BINARIO_MAL_FORMADO, yylineno, num_columnas);
+
+    anade_punto_y_coma = 1;
+
+    componente.lexema = strdup(yytext); 
+    componente.componente_lexico = INTEGER;
+    return &componente;
+}
+
+{ERROR_OCT} {
+    error(ERROR_OCTAL_MAL_FORMADO, yylineno, num_columnas);
+
+    anade_punto_y_coma = 1;
+
+    componente.lexema = strdup(yytext); 
+    componente.componente_lexico = INTEGER;
+    return &componente;
+}
+
+{ERROR_DEC} {
+    error(ERROR_DECIMAL_MAL_FORMADO, yylineno, num_columnas);
+
+    anade_punto_y_coma = 1;
+
+    componente.lexema = strdup(yytext); 
+    componente.componente_lexico = INTEGER;
+    return &componente;
+}
+
+{ERROR_HEX} {
+    error(ERROR_HEX_MAL_FORMADO, yylineno, num_columnas);
+
+    anade_punto_y_coma = 1;
+
+    componente.lexema = strdup(yytext); 
+    componente.componente_lexico = INTEGER;
+    return &componente;
+}
+
+{ERROR_EXP} {
+    error(ERROR_EXP_ERRONEO, yylineno, num_columnas);
+
+    anade_punto_y_coma = 1;
+
+    componente.lexema = strdup(yytext); 
+    componente.componente_lexico = INTEGER;
+    return &componente;
+}
+
 
  /*IGNORO LOS COMENTARIOS DE BLOQUE*/
 

@@ -4,7 +4,7 @@
 
 //Códigos de error
 #define ERROR_TAM_LEXEMA_EXCEDIDO "Se ha excedido el tamaño máximo de lexema"
-#define ERROR_STRING_MAL_FORMADO "String mal formado"
+#define ERROR_STRING_MAL_FORMADO "String sin cerrar"
 #define ERROR_BINARIO_MAL_FORMADO "Número binario mal formado"
 #define ERROR_OCTAL_MAL_FORMADO "Número octal mal formado"
 #define ERROR_DECIMAL_MAL_FORMADO "Número decimal mal formado"
@@ -14,7 +14,7 @@
 
 
 //Función para la impresión de errores
-void error(char *msg, int numLinea);
+void error(char *msg, int numLinea, int numCol);
 
 
 #endif
