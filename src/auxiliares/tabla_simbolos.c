@@ -43,23 +43,23 @@ void crear_tabla()
     int i;
 
     //Introduzco las palabras claves
-    for(i = 0; i < 8; i++) {
-        _anadir(kw_lexemas[i], kw_comp_lexicos[i]); 
-    }
+    // for(i = 0; i < 8; i++) {
+    //     _anadir(kw_lexemas[i], kw_comp_lexicos[i]); 
+    // }
 }
 
 //Función que devuelve el código del identificador o la palabra clave
 int buscar_lexema(char *lexema)
 {
     int codigo;
-    elemento_tabla *el = _buscar(lexema);
+    /*elemento_tabla *el = _buscar(lexema);
 
     if(el != NULL) {
         codigo = el->componente_lexico;
     } else{
         _anadir(lexema, ID); //Si no esta en la tabla, es un identificador
         codigo = ID;
-    }
+    }*/
 
     return codigo;
 }

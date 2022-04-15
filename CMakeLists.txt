@@ -10,6 +10,16 @@ FLEX_TARGET(
     analizadorLexico src/analizadores/analizador_lexico.lex ${CMAKE_CURRENT_BINARY_DIR}/lexico.c
 )
 
+#COMPILACIÓN DE BISON
+find_package(BISON)
+BISON_TARGET(
+    analizadorSintactico src/analizadores/analizador_sintactico.y ${CMAKE_CURRENT_BINARY_DIR}/sintactico.c
+    COMPILE_FLAGS
+        "--defines=include/auxiliares/definiciones.h --debug -Wall --report=solved"
+)
+
+ADD_FLEX_BISON_DEPENDENCY(analizadorLexico analizadorSintactico)
+
 
 #OPCIONES COMPILACIÓN
 set(CMAKE_C_COMPILER "gcc")
@@ -31,8 +41,7 @@ set(
 set(
     SOURCES
     ${FLEX_analizadorLexico_OUTPUTS}
-    src/analizadores/analizador_sintactico.c
-    src/auxiliares/definiciones.c
+    ${BISON_analizadorSintactico_OUTPUTS}
     src/auxiliares/errores.c
     src/auxiliares/tabla_simbolos.c
     src/main.c
@@ -42,3 +51,4 @@ set(
 #EJECUTABLE
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE include)
+target_link_libraries(${PROJECT_NAME} m)

@@ -1,55 +1,96 @@
-#ifndef definiciones_h
-#define definiciones_h
+/* A Bison parser, made by GNU Bison 3.5.1.  */
 
-typedef struct comp_lexico
-{
-    int componente_lexico;
-    char* lexema;
-} comp_lexico;
+/* Bison interface for Yacc-like parsers in C
 
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Inc.
 
-#define KW_CHAN 300
-#define KW_FOR 301
-#define KW_FUNC 302
-#define KW_GO 303
-#define KW_IMPORT 304
-#define KW_PACKAGE 305
-#define KW_RANGE 306
-#define KW_VAR 307
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-char *kw_lexemas[8];
-int kw_comp_lexicos[8];
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-#define ID 400
-#define STRING 401
-#define INTEGER 402
-#define FLOAT 403
-#define COMPLEX 404
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-#define TIPO_FLOAT32 450
+/* As a special exception, you may create a larger work that contains
+   part or all of the Bison parser skeleton and distribute that work
+   under terms of your choice, so long as that work isn't itself a
+   parser generator using the skeleton or a modified version thereof
+   as a parser skeleton.  Alternatively, if you modify or redistribute
+   the parser skeleton itself, you may (at your option) remove this
+   special exception, which will cause the skeleton and the resulting
+   Bison output files to be licensed under the GNU General Public
+   License without this special exception.
 
-#define SEPARADOR_PAR_IZQ 500
-#define SEPARADOR_PAR_DER 501
-#define SEPARADOR_COR_IZQ 502
-#define SEPARADOR_COR_DER 503
-#define SEPARADOR_LLAVE_IZQ 504
-#define SEPARADOR_LLAVE_DER 505
-#define SEPARADOR_COMA 506
-#define SEPARADOR_PUNTO 507
-#define SEPARADOR_PUNTOYCOMA 508
+   This special exception was added by the Free Software Foundation in
+   version 2.2 of Bison.  */
 
-#define OPERADOR_ASIGNACION 600
-#define OPERADOR_INICIALIZACION 601
-#define OPERADOR_MAS_IGUAL 602
-#define OPERADOR_ENVIO 603
-#define OPERADOR_SUMA 604
-#define OPERADOR_RESTA 605
-#define OPERADOR_MULT 606
-#define OPERADOR_DIV 607
-#define OPERADOR_RANGO 608
-#define OPERADOR_MENOR 609
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
 
-#define LIMITE_EOF 700
-
-
+#ifndef YY_YY_INCLUDE_AUXILIARES_DEFINICIONES_H_INCLUDED
+# define YY_YY_INCLUDE_AUXILIARES_DEFINICIONES_H_INCLUDED
+/* Debug traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 1
 #endif
+#if YYDEBUG
+extern int yydebug;
+#endif
+/* "%code requires" blocks.  */
+#line 4 "src/analizadores/analizador_sintactico.y"
+
+    #include "analizadores/analizador_sintactico.h"
+
+    #include <stdio.h>
+    #include <math.h>
+    
+
+#line 56 "include/auxiliares/definiciones.h"
+
+/* Token type.  */
+#ifndef YYTOKENTYPE
+# define YYTOKENTYPE
+  enum yytokentype
+  {
+    BLANCO = 258,
+    INTEGER = 259,
+    FLOAT = 260,
+    OPERADOR_SUMA = 261,
+    OPERADOR_RESTA = 262,
+    OPERADOR_MULT = 263,
+    OPERADOR_DIV = 264,
+    SEPARADOR_PAR_IZQ = 265,
+    SEPARADOR_PAR_DER = 266,
+    NEG = 267,
+    OPERADOR_EXP = 268
+  };
+#endif
+
+/* Value type.  */
+#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+union YYSTYPE
+{
+#line 12 "src/analizadores/analizador_sintactico.y"
+ double valor; 
+
+#line 84 "include/auxiliares/definiciones.h"
+
+};
+typedef union YYSTYPE YYSTYPE;
+# define YYSTYPE_IS_TRIVIAL 1
+# define YYSTYPE_IS_DECLARED 1
+#endif
+
+
+extern YYSTYPE yylval;
+
+int yyparse (void);
+
+#endif /* !YY_YY_INCLUDE_AUXILIARES_DEFINICIONES_H_INCLUDED  */

@@ -9,13 +9,13 @@
 
 int main(int argc, char *argv[])
 {
-    crear_tabla();
-    imprimir_tabla();
+    //crear_tabla();
+    //imprimir_tabla();
 
     realizar_analisis();
 
-    imprimir_tabla();
-    destruir_tabla();
+    //imprimir_tabla();
+    //destruir_tabla();
 
 
     exit(EXIT_SUCCESS);
