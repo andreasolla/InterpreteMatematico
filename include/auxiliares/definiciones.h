@@ -48,13 +48,15 @@ extern int yydebug;
 
     #include "analizadores/analizador_sintactico.h"
     #include "auxiliares/tabla_simbolos.h"
+    #include "auxiliares/errores.h"
 
     #include <stdio.h>
     #include <math.h>
     #include <string.h>
     
 
-#line 58 "include/auxiliares/definiciones.h"
+
+#line 60 "include/auxiliares/definiciones.h"
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -65,15 +67,16 @@ extern int yydebug;
     INTEGER = 259,
     FLOAT = 260,
     ID = 261,
-    OPERADOR_SUMA = 262,
-    OPERADOR_RESTA = 263,
-    OPERADOR_MULT = 264,
-    OPERADOR_DIV = 265,
-    SEPARADOR_PAR_IZQ = 266,
-    SEPARADOR_PAR_DER = 267,
-    NEG = 268,
-    OPERADOR_EXP = 269,
-    OPERADOR_IGUAL = 270
+    FUNC = 262,
+    OPERADOR_SUMA = 263,
+    OPERADOR_RESTA = 264,
+    OPERADOR_MULT = 265,
+    OPERADOR_DIV = 266,
+    SEPARADOR_PAR_IZQ = 267,
+    SEPARADOR_PAR_DER = 268,
+    NEG = 269,
+    OPERADOR_EXP = 270,
+    OPERADOR_IGUAL = 271
   };
 #endif
 
@@ -81,10 +84,10 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "src/analizadores/analizador_sintactico.y"
- double valor; char *ptr; 
+#line 16 "src/analizadores/analizador_sintactico.y"
+ numero num; char *ptr; 
 
-#line 88 "include/auxiliares/definiciones.h"
+#line 91 "include/auxiliares/definiciones.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

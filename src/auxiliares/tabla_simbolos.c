@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "auxiliares/definiciones.h"
 
@@ -36,6 +37,7 @@ elemento_tabla *_buscar(char *cadena) {
 
 //---------------------------------- Funciones publicas
 
+
 //Función que crea la tabla y la inicializa con las keywords
 void crear_tabla()
 {
@@ -46,25 +48,33 @@ void crear_tabla()
     // for(i = 0; i < 8; i++) {
     //     _anadir(kw_lexemas[i], kw_comp_lexicos[i]); 
     // }
+
+    /* La tabla de s ́ımbolos: una cadena de ‘struct symrec’. */
+
+    elemento_tabla *ptr;
+    _anadir("sin", FUNC);
+    ptr = _buscar("sin");
+    ptr->cont.funcion = sin;
+
 }
 
 //Función que devuelve el código del identificador o la palabra clave
-int buscar_lexema(char *lexema)
+int buscar_elemento(char *nombre)
 {
     int codigo;
-    /*elemento_tabla *el = _buscar(lexema);
+    elemento_tabla *el = _buscar(nombre);
 
-    if(el != NULL) {
-        codigo = el->componente_lexico;
+    if(el != NULL && el->componente_lexico == FUNC) {
+        codigo = FUNC;
     } else{
-        _anadir(lexema, ID); //Si no esta en la tabla, es un identificador
+        //Si no esta en la tabla, es un identificador
         codigo = ID;
-    }*/
+    }
 
     return codigo;
 }
 
-void anadir_variable(char *nombre, float valor)
+void anadir_variable(char *nombre, numero num)
 {
     elemento_tabla *el = _buscar(nombre);
 
@@ -73,20 +83,32 @@ void anadir_variable(char *nombre, float valor)
         el = _buscar(nombre);
     }
 
-    el->cont.valor = valor;
+    el->cont.valor = num;
 }
 
-float obtenerValor(char *nombre)
-{
+int id_definido(char *nombre) {
     elemento_tabla *el = _buscar(nombre);
 
     if(el == NULL) {
         return 0;
+    } else {
+        return 1;
     }
+}
 
+numero obtener_valor(char *nombre)
+{
+    elemento_tabla *el = _buscar(nombre);
+    
     return el->cont.valor;
 }
 
+elemento_tabla obtener_funcion(char *nombre)
+{
+    elemento_tabla *el = _buscar(nombre);
+
+    return *el;
+}
 
 //Función que vacía la tabla y libera la memoria
 void destruir_tabla()

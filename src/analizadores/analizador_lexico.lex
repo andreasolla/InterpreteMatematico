@@ -68,7 +68,6 @@ P_DERECHO ")"
 
 
 \n {
-    printf("LEX: BARRA ENE\n"); 
     return BLANCO; }
 
 
@@ -83,7 +82,6 @@ P_DERECHO ")"
 }
 
 {MULT} {
-    printf("LÉXICO: %s\n", yytext);
     return OPERADOR_MULT; 
 }
 
@@ -117,14 +115,14 @@ P_DERECHO ")"
  /*NUMEROS*/
 
 {INT} {
-    yylval.valor = atof(yytext);
-    printf("léxico: %s\n", yytext);
+    yylval.num.valor.entero = atoi(yytext);
+    yylval.num.tipo = 'i';
     return INTEGER;
-
 }
 
 {FLOAT} {
-    yylval.valor = atof(yytext); 
+    yylval.num.valor.flotante = atof(yytext); 
+    yylval.num.tipo = 'f';
     return FLOAT;
     
 }
@@ -132,7 +130,7 @@ P_DERECHO ")"
  /*VARIABLES*/
 {ID} {
     yylval.ptr = strdup(yytext);
-    return ID;
+    return buscar_elemento(yylval.ptr);
 }
 
 
