@@ -64,6 +64,30 @@ int buscar_lexema(char *lexema)
     return codigo;
 }
 
+void anadir_variable(char *nombre, float valor)
+{
+    elemento_tabla *el = _buscar(nombre);
+
+    if(el == NULL) {
+        _anadir(nombre, ID);
+        el = _buscar(nombre);
+    }
+
+    el->cont.valor = valor;
+}
+
+float obtenerValor(char *nombre)
+{
+    elemento_tabla *el = _buscar(nombre);
+
+    if(el == NULL) {
+        return 0;
+    }
+
+    return el->cont.valor;
+}
+
+
 //Función que vacía la tabla y libera la memoria
 void destruir_tabla()
 {

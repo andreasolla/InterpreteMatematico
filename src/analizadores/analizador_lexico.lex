@@ -67,7 +67,9 @@ P_DERECHO ")"
 %%
 
 
-\n { return BLANCO; }
+\n {
+    printf("LEX: BARRA ENE\n"); 
+    return BLANCO; }
 
 
  /*OPERADORES*/
@@ -81,7 +83,8 @@ P_DERECHO ")"
 }
 
 {MULT} {
-    return OPERADOR_MULT;   
+    printf("LÉXICO: %s\n", yytext);
+    return OPERADOR_MULT; 
 }
 
 {DIV} {
@@ -90,6 +93,14 @@ P_DERECHO ")"
 
 {EXP} {
     return OPERADOR_EXP;   
+}
+
+ /*{MODULO} {
+    return OPERADOR_MODULO;
+}*/
+
+{IGUAL} {
+    return OPERADOR_IGUAL;
 }
 
  /*SEPARADORES*/
@@ -107,6 +118,7 @@ P_DERECHO ")"
 
 {INT} {
     yylval.valor = atof(yytext);
+    printf("léxico: %s\n", yytext);
     return INTEGER;
 
 }
@@ -115,6 +127,12 @@ P_DERECHO ")"
     yylval.valor = atof(yytext); 
     return FLOAT;
     
+}
+
+ /*VARIABLES*/
+{ID} {
+    yylval.ptr = strdup(yytext);
+    return ID;
 }
 
 
