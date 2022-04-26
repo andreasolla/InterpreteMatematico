@@ -27,7 +27,7 @@ INT             {NUM}
 FLOAT           {NUM}\.{NUM}{EXP_DECIMAL}?|{NUM}{EXP_DECIMAL}|\.{NUM}{EXP_DECIMAL}?
 
 ID              {LETTER}({LETTER}|{DECIMAL_DIGIT})*
-
+NOMBRE_ARCHIVO ({LETTER}|{DECIMAL_DIGIT})({LETTER}|{DECIMAL_DIGIT}|\.)*
 
 /*OPERADORES*/
 
@@ -133,9 +133,18 @@ P_DERECHO ")"
     return buscar_elemento(yylval.ptr);
 }
 
+{NOMBRE_ARCHIVO} {
+    yylval.ptr = strdup(yytext);
+    return ARCHIVO;
+}
+
 
 {ESPACIO} /*ignoro los espacios*/
 
+<<EOF>> {
+    terminar_archivo();
+    return LIMITE_EOF;
+}
 
 %%
 
@@ -145,9 +154,28 @@ void inicializar_analizador_lexico()
     yyin = stdin;
 }
 
+void leer_archivo(char *nombre_archivo)
+{
+    yyin = fopen(nombre_archivo, "r");
+
+    if(yyin == NULL)
+    {
+        error(ERROR_ARCHIVO);
+    } else {
+        printf("Análisis del archivo: \n");
+    }
+}
+
+void terminar_archivo()
+{
+    fclose(yyin); //cierro el archivo
+
+    yyrestart(stdin); //vuelvo a poner stdin
+}
+
 //Procedimientos de liberación de memoria para la finalización del análisis léxico
 void finalizar_analisis() {
-    fclose(yyin); //Cierro el archivo
+    //fclose(yyin); //Cierro el archivo
     yylex_destroy(); //Libero  la memria de yylex
 }
 

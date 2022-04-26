@@ -6,5 +6,4 @@
 
 void realizar_analisis();
 
-
 #endif

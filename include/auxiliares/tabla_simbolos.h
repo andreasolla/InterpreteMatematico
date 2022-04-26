@@ -30,9 +30,12 @@ void crear_tabla();
 int buscar_lexema(char *lexema);
 void destruir_tabla();
 void imprimir_tabla();
+void imprimir_workspace();
 void anadir_variable(char *nombre, numero num);
 numero obtener_valor(char *nombre);
 elemento_tabla obtener_funcion(char *nombre);
 int id_definido(char *nombre);
+void vaciar_workspace();
+void eliminar_variable(char *nombre);
 
 #endif

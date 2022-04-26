@@ -35,6 +35,7 @@ set(
     include/auxiliares/definiciones.h
     include/auxiliares/errores.h
     include/auxiliares/tabla_simbolos.h
+    include/auxiliares/funciones.h
     include/auxiliares/uthash.h
 )
 
@@ -44,6 +45,7 @@ set(
     ${BISON_analizadorSintactico_OUTPUTS}
     src/auxiliares/errores.c
     src/auxiliares/tabla_simbolos.c
+    src/auxiliares/funciones.c
     src/main.c
 )
 

@@ -5,12 +5,14 @@
     #include "analizadores/analizador_sintactico.h"
     #include "auxiliares/tabla_simbolos.h"
     #include "auxiliares/errores.h"
+    #include "auxiliares/funciones.h"
 
     #include <stdio.h>
     #include <math.h>
     #include <string.h>
     
-
+    #define COLOR_VERDE   "\x1b[32m"
+    #define COLOR_RESET   "\x1b[0m"
 }
 
 %union { numero num; char *ptr; }
@@ -25,6 +27,9 @@
 
 %token <ptr> ID
 %token <ptr> FUNC
+%token <ptr> ARCHIVO
+
+%token LIMITE_EOF
 
 %left OPERADOR_SUMA OPERADOR_RESTA
 %left OPERADOR_MULT OPERADOR_DIV
@@ -37,6 +42,11 @@
 
 %token OPERADOR_IGUAL
 
+%token KW_HELP
+%token KW_QUIT
+%token KW_LOAD
+%token KW_WORKSPACE
+%token KW_CLEAR
 
 /*-----SIMBOLOS NO TERMINALES-----*/
 
@@ -51,7 +61,9 @@
     numero operar(numero a, numero b, char op);
 
     char *prompt = "(╮°-°)╮┳━━┳ >> ";
+    char *prompt_archivo = "(⌐□_□)┬─┬ >> ";
     int hay_error=0;
+    int leyendo_archivo=0;
 }
 
 
@@ -60,11 +72,22 @@
 %%
 
 input: %empty
-    | input line {printf("\n%s", prompt);}
+    | input line {if(leyendo_archivo) { printf("\n%s", prompt_archivo); } else { printf("\n%s", prompt); }}
+    | input op {if(leyendo_archivo) { printf("\n%s", prompt_archivo); } else { printf("\n%s", prompt); }}
+    | input LIMITE_EOF { printf("FIN ARCHIVO\n"); leyendo_archivo=0; printf("\n%s", prompt);}
 ;
 
 line: BLANCO
-    | expr BLANCO { if(!hay_error) { if($1.tipo == 'f') {printf("%f\n", $1.valor.flotante);} else {printf("%d\n", $1.valor.entero);} hay_error = 0; } }
+    | expr BLANCO { if(!hay_error) { if($1.tipo == 'f') {printf("%f\n", $1.valor.flotante);} else {printf("%d\n", $1.valor.entero);} } else { hay_error = 0; } }
+    | op BLANCO
+;
+
+op: KW_HELP {printf("help\n%s", prompt);}
+    | KW_CLEAR { clear(NULL); }
+    | KW_CLEAR SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER  { if(id_definido($3) != NULL) { clear($3); } else {error(ERROR_ID_NO_DEFINIDO); } }
+    | KW_LOAD SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { if(!leyendo_archivo) { leyendo_archivo=1; load($3); } else { error(ERROR_2_ARCHIVO); } }
+    | KW_WORKSPACE { workspace(); }
+    | KW_QUIT { finalizar(); return 0; }
 ;
 
 expr: INTEGER { $$.valor.entero = $1.valor.entero; $$.tipo = 'i'; }
@@ -141,12 +164,21 @@ numero operar(numero a, numero b, char op){
     return resultado;
 }
 
-
-
 void realizar_analisis() {
-    error(ERROR_STRING_MAL_FORMADO);
     printf("%s", prompt);
     yyparse();
+}
+
+void finalizar() {
+    //Finalizo el análisis en el analizador lexico (y la tabla de símbolos)
+    finalizar_analisis();
+
+    printf(COLOR_VERDE "\n  ╭──────────────────────────────────╮\n");
+    printf("╭─┤FINALIZANDO...   ┳━━┳ノ( º _ ºノ) ├──────────\n");
+    printf("│ ╰──────────────────────────────────╯\n");
+    printf("│  Hasta pronto! \n");
+    printf("╰───────────────────────────────────────────────\n\n" COLOR_RESET);
+    //return 0;
 }
 
 void yyerror(char const *msg) {

@@ -10,6 +10,10 @@
 
 elemento_tabla *tabla_simbolos;
 
+//Funciones del workspace -> keywords
+char *kw_lexemas[5] = {"help", "quit", "load", "workspace", "clear"};
+int kw_comp_lexicos[5] = {KW_HELP, KW_QUIT, KW_LOAD, KW_WORKSPACE, KW_CLEAR};
+//double (*)()[5] = {};
 
 //---------------------------------- Funciones privadas
 
@@ -37,24 +41,21 @@ elemento_tabla *_buscar(char *cadena) {
 
 //---------------------------------- Funciones publicas
 
-
 //Función que crea la tabla y la inicializa con las keywords
 void crear_tabla()
 {
     tabla_simbolos = NULL;
     int i;
 
-    //Introduzco las palabras claves
-    // for(i = 0; i < 8; i++) {
-    //     _anadir(kw_lexemas[i], kw_comp_lexicos[i]); 
-    // }
+    //Introduzco las palabras clave (funciones del workspace)
+    for(i = 0; i < 5; i++) {
+        _anadir(kw_lexemas[i], kw_comp_lexicos[i]); 
+    }
 
-    /* La tabla de s ́ımbolos: una cadena de ‘struct symrec’. */
-
-    elemento_tabla *ptr;
+    elemento_tabla *el;
     _anadir("sin", FUNC);
-    ptr = _buscar("sin");
-    ptr->cont.funcion = sin;
+    el = _buscar("sin");
+    el->cont.funcion = sin;
 
 }
 
@@ -64,9 +65,9 @@ int buscar_elemento(char *nombre)
     int codigo;
     elemento_tabla *el = _buscar(nombre);
 
-    if(el != NULL && el->componente_lexico == FUNC) {
-        codigo = FUNC;
-    } else{
+    if(el != NULL) {
+        codigo = el->componente_lexico;
+    } else{ //faltaria buscar la funcion en las librerias incluidas
         //Si no esta en la tabla, es un identificador
         codigo = ID;
     }
@@ -136,4 +137,49 @@ void imprimir_tabla()
         printf("║\t%s\t\t│\t%d\t\t║\n", iterador->id, iterador->componente_lexico);
     }
     printf("╚═══════════════════════╧═══════════════════════╝\n");
+}
+
+
+//Función que imprime la tabla de variables
+void imprimir_workspace()
+{
+    elemento_tabla *iterador, *tmp;
+
+    printf("╔═══════════════════════════════════════════════╗\n");
+    printf("║\t\t    WORKSPACE\t\t\t║\n");
+    printf("╟───────────────────────┬───────────────────────╢\n");
+    printf("║\tvariable\t│\tvalor\t\t║\n");
+    printf("╟───────────────────────┼───────────────────────╢\n");
+    HASH_ITER(hh, tabla_simbolos, iterador, tmp) {
+        if(iterador->componente_lexico == ID) {
+            if(iterador->cont.valor.tipo == 'f') {
+                printf("║\t%s\t\t│\t%f\t║\n", iterador->id, iterador->cont.valor.valor.flotante);
+            } else {
+                printf("║\t%s\t\t│\t%d\t\t║\n", iterador->id, iterador->cont.valor.valor.entero);
+            }
+        }
+    }
+    printf("╚═══════════════════════╧═══════════════════════╝\n");
+}
+
+void vaciar_workspace() {
+    elemento_tabla *iterador, *tmp;
+
+    HASH_ITER(hh, tabla_simbolos, iterador, tmp) {
+        if(iterador->componente_lexico == ID) {
+            HASH_DEL(tabla_simbolos, iterador);
+            free(iterador->id);
+            free(iterador);
+        }
+    }
+}
+
+void eliminar_variable(char *nombre) {
+    elemento_tabla *el = _buscar(nombre);
+
+    if(el != NULL && el->componente_lexico == ID) {
+        HASH_DEL(tabla_simbolos, el);
+        free(el->id);
+        free(el);
+    }
 }
