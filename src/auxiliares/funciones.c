@@ -4,6 +4,8 @@
 #include "analizadores/analizador_lexico.h"
 #include "auxiliares/tabla_simbolos.h"
 
+#include <dlfcn.h>
+
 void help() {
 
 }
@@ -26,4 +28,8 @@ void quit() {
 
 void load(char *nombre) {
     leer_archivo(nombre);
+}
+
+void import(char *libreria) {
+    anadir_libreria(libreria);
 }

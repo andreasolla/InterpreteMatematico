@@ -10,7 +10,7 @@
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define COLOR_RESET   "\x1b[0m"
 
-void error(char *msg){
+void lanzar_error(char *msg){
     printf(COLOR_ROJO "\n  ╭────────────────────────────────╮\n");
     printf("╭─┤ERROR (╮°-°)╮┳━━┳ ( ╯°□°)╯ ┻━━┻ ├────────────\n");
     printf("│ ╰────────────────────────────────╯\n");

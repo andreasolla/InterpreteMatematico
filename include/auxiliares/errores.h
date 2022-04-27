@@ -6,6 +6,8 @@
 #define ERROR_ID_NO_DEFINIDO "El identificador no está definido"
 #define ERROR_ARCHIVO "Ha habido un error al abrir el archivo"
 #define ERROR_2_ARCHIVO "No se puede cargar un archivo dentro de otro"
+#define ERROR_SINTACTICO "Expresión no reconocida"
+#define ERROR_LIBRERIA "Error al importar la librería"
 
 #define ERROR_TAM_LEXEMA_EXCEDIDO "Se ha excedido el tamaño máximo de lexema"
 #define ERROR_STRING_MAL_FORMADO "String sin cerrar"
@@ -17,7 +19,7 @@
 
 
 //Función para la impresión de errores
-void error(char *msg);
+void lanzar_error(char *msg);
 
 
 #endif

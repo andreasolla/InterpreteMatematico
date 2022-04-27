@@ -47,6 +47,7 @@ extern int yydebug;
 #line 4 "src/analizadores/analizador_sintactico.y"
 
     #include "analizadores/analizador_sintactico.h"
+    #include "analizadores/analizador_lexico.h"
     #include "auxiliares/tabla_simbolos.h"
     #include "auxiliares/errores.h"
     #include "auxiliares/funciones.h"
@@ -58,7 +59,7 @@ extern int yydebug;
     #define COLOR_VERDE   "\x1b[32m"
     #define COLOR_RESET   "\x1b[0m"
 
-#line 62 "include/auxiliares/definiciones.h"
+#line 63 "include/auxiliares/definiciones.h"
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -85,7 +86,8 @@ extern int yydebug;
     KW_QUIT = 275,
     KW_LOAD = 276,
     KW_WORKSPACE = 277,
-    KW_CLEAR = 278
+    KW_CLEAR = 278,
+    KW_IMPORT = 279
   };
 #endif
 
@@ -93,10 +95,10 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 18 "src/analizadores/analizador_sintactico.y"
+#line 19 "src/analizadores/analizador_sintactico.y"
  numero num; char *ptr; 
 
-#line 100 "include/auxiliares/definiciones.h"
+#line 102 "include/auxiliares/definiciones.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

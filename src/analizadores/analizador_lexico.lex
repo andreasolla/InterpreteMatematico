@@ -27,7 +27,7 @@ INT             {NUM}
 FLOAT           {NUM}\.{NUM}{EXP_DECIMAL}?|{NUM}{EXP_DECIMAL}|\.{NUM}{EXP_DECIMAL}?
 
 ID              {LETTER}({LETTER}|{DECIMAL_DIGIT})*
-NOMBRE_ARCHIVO ({LETTER}|{DECIMAL_DIGIT})({LETTER}|{DECIMAL_DIGIT}|\.)*
+NOMBRE_ARCHIVO ({LETTER}|{DECIMAL_DIGIT}|\/|-|\.)+({LETTER}|{DECIMAL_DIGIT}|\.|-)*
 
 /*OPERADORES*/
 
@@ -59,6 +59,8 @@ P_DERECHO ")"
 
     /*Reescribo el tamaño de buffer de flex a 4096 bytes*/
     #define YY_BUF_SIZE 4096
+
+    void terminar_archivo();
 %}
 
 
@@ -130,7 +132,7 @@ P_DERECHO ")"
  /*VARIABLES*/
 {ID} {
     yylval.ptr = strdup(yytext);
-    return buscar_elemento(yylval.ptr);
+    return buscar_lexema(yylval.ptr);
 }
 
 {NOMBRE_ARCHIVO} {
@@ -160,7 +162,7 @@ void leer_archivo(char *nombre_archivo)
 
     if(yyin == NULL)
     {
-        error(ERROR_ARCHIVO);
+        lanzar_error(ERROR_ARCHIVO);
     } else {
         printf("Análisis del archivo: \n");
     }

@@ -3,6 +3,7 @@
 
 %code requires{
     #include "analizadores/analizador_sintactico.h"
+    #include "analizadores/analizador_lexico.h"
     #include "auxiliares/tabla_simbolos.h"
     #include "auxiliares/errores.h"
     #include "auxiliares/funciones.h"
@@ -47,6 +48,7 @@
 %token KW_LOAD
 %token KW_WORKSPACE
 %token KW_CLEAR
+%token KW_IMPORT
 
 /*-----SIMBOLOS NO TERMINALES-----*/
 
@@ -59,6 +61,7 @@
     void yyerror(char const *msg);
     float valorF(numero x);
     numero operar(numero a, numero b, char op);
+    void finalizar();
 
     char *prompt = "(╮°-°)╮┳━━┳ >> ";
     char *prompt_archivo = "(⌐□_□)┬─┬ >> ";
@@ -80,19 +83,22 @@ input: %empty
 line: BLANCO
     | expr BLANCO { if(!hay_error) { if($1.tipo == 'f') {printf("%f\n", $1.valor.flotante);} else {printf("%d\n", $1.valor.entero);} } else { hay_error = 0; } }
     | op BLANCO
+    | error BLANCO { yyclearin; yyerrok; }
 ;
 
 op: KW_HELP {printf("help\n%s", prompt);}
     | KW_CLEAR { clear(NULL); }
-    | KW_CLEAR SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER  { if(id_definido($3) != NULL) { clear($3); } else {error(ERROR_ID_NO_DEFINIDO); } }
-    | KW_LOAD SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { if(!leyendo_archivo) { leyendo_archivo=1; load($3); } else { error(ERROR_2_ARCHIVO); } }
+    | KW_CLEAR SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER  { if(id_definido($3)) { clear($3); } else {lanzar_error(ERROR_ID_NO_DEFINIDO); } }
+    | KW_LOAD SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { if(!leyendo_archivo) { leyendo_archivo=1; load($3); } else { lanzar_error(ERROR_2_ARCHIVO); } }
     | KW_WORKSPACE { workspace(); }
     | KW_QUIT { finalizar(); return 0; }
+    | KW_IMPORT SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { import($3); }
+    | KW_IMPORT SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER { import($3); }
 ;
 
 expr: INTEGER { $$.valor.entero = $1.valor.entero; $$.tipo = 'i'; }
     | FLOAT { $$.valor.flotante = $1.valor.flotante; $$.tipo = 'f'; }
-    | ID { if(id_definido($1) != NULL) {$$ = obtener_valor($1);} else {error(ERROR_ID_NO_DEFINIDO); hay_error=1; } }
+    | ID { if(id_definido($1)) {$$ = obtener_valor($1);} else {lanzar_error(ERROR_ID_NO_DEFINIDO); hay_error=1; } }
     | ID OPERADOR_IGUAL expr { anadir_variable($1, $3); $$ = $3; }
     | expr OPERADOR_SUMA expr { $$ = operar($1, $3, '+'); }
     | expr OPERADOR_RESTA expr { $$ = operar($1, $3, '-'); }
@@ -100,8 +106,9 @@ expr: INTEGER { $$.valor.entero = $1.valor.entero; $$.tipo = 'i'; }
     | expr OPERADOR_DIV expr { $$ = operar($1, $3, '/'); }
     | expr OPERADOR_EXP expr { $$ = operar($1, $3, '^'); }
     | OPERADOR_RESTA expr %prec NEG { if($2.tipo == 'f') {$$.valor.flotante = -$2.valor.flotante; $$.tipo = 'f'; } else {$$.valor.entero = -$2.valor.entero; $$.tipo = 'i'; } }
+    | OPERADOR_SUMA expr { if($2.tipo == 'f') {$$.valor.flotante = $2.valor.flotante; $$.tipo = 'f'; } else {$$.valor.entero = $2.valor.entero; $$.tipo = 'i'; } }
     | SEPARADOR_PAR_IZQ expr SEPARADOR_PAR_DER { $$ = $2; }
-    | FUNC SEPARADOR_PAR_IZQ expr SEPARADOR_PAR_DER { $$.valor.flotante = (*(obtener_funcion($1).cont.funcion))(valorF($3)); $$.tipo='f'; printf("%p: %p\n", obtener_funcion($1).cont.funcion, sin); }
+    | FUNC SEPARADOR_PAR_IZQ expr SEPARADOR_PAR_DER { $$.valor.flotante = (*(obtener_funcion($1).cont.funcion))(valorF($3)); $$.tipo='f'; }
 ;
 
 
@@ -136,7 +143,7 @@ numero operar(numero a, numero b, char op){
                 resultado.valor.flotante = valorF(a) / valorF(b);
                 break;
             case '^':
-                resultado.valor.flotante = pow(valorF(a), valorF(b));
+                resultado.valor.flotante = 0;//pow(valorF(a), valorF(b));
                 break;
         }
     } else {
@@ -156,7 +163,7 @@ numero operar(numero a, numero b, char op){
                 resultado.valor.entero = a.valor.entero / b.valor.entero;
                 break;
             case '^':
-                resultado.valor.entero = pow(a.valor.entero, b.valor.entero);
+                resultado.valor.entero = 0;//pow(a.valor.entero, b.valor.entero);
                 break;
         }
     }
@@ -182,5 +189,5 @@ void finalizar() {
 }
 
 void yyerror(char const *msg) {
-    printf("Error analizador sintactico-semantico: %s\n", msg);
+    lanzar_error(ERROR_SINTACTICO);
 }

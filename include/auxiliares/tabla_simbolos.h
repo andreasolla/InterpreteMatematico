@@ -20,6 +20,7 @@ typedef struct elemento_tabla
     union cont {
         numero valor;
         double (*funcion)();
+        void *libreria;
     } cont;
 
     UT_hash_handle hh;
@@ -27,15 +28,19 @@ typedef struct elemento_tabla
 
 
 void crear_tabla();
-int buscar_lexema(char *lexema);
 void destruir_tabla();
+
 void imprimir_tabla();
 void imprimir_workspace();
+void vaciar_workspace();
+void eliminar_variable(char *nombre);
+
+int buscar_lexema(char *lexema);
 void anadir_variable(char *nombre, numero num);
+void anadir_libreria(char *nombre);
+
 numero obtener_valor(char *nombre);
 elemento_tabla obtener_funcion(char *nombre);
 int id_definido(char *nombre);
-void vaciar_workspace();
-void eliminar_variable(char *nombre);
 
 #endif
