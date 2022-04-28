@@ -14,7 +14,6 @@ void lanzar_error(char *msg){
     printf(COLOR_ROJO "\n  ╭────────────────────────────────╮\n");
     printf("╭─┤ERROR (╮°-°)╮┳━━┳ ( ╯°□°)╯ ┻━━┻ ├────────────\n");
     printf("│ ╰────────────────────────────────╯\n");
-    //printf("│  Línea: %d Columna: %d\n");
     printf("│  %s\n", msg);
     printf("╰───────────────────────────────────────────────\n\n" COLOR_RESET);
 }

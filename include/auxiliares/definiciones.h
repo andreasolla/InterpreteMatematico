@@ -77,18 +77,19 @@ extern int yydebug;
     OPERADOR_RESTA = 266,
     OPERADOR_MULT = 267,
     OPERADOR_DIV = 268,
-    SEPARADOR_PAR_IZQ = 269,
-    SEPARADOR_PAR_DER = 270,
-    SEPARADOR_PUNTO_Y_COMA = 271,
-    NEG = 272,
-    OPERADOR_EXP = 273,
-    OPERADOR_IGUAL = 274,
-    KW_HELP = 275,
-    KW_QUIT = 276,
-    KW_LOAD = 277,
-    KW_WORKSPACE = 278,
-    KW_CLEAR = 279,
-    KW_IMPORT = 280
+    OPERADOR_MODULO = 269,
+    SEPARADOR_PAR_IZQ = 270,
+    SEPARADOR_PAR_DER = 271,
+    SEPARADOR_PUNTO_Y_COMA = 272,
+    NEG = 273,
+    OPERADOR_EXP = 274,
+    OPERADOR_IGUAL = 275,
+    KW_HELP = 276,
+    KW_QUIT = 277,
+    KW_LOAD = 278,
+    KW_WORKSPACE = 279,
+    KW_CLEAR = 280,
+    KW_IMPORT = 281
   };
 #endif
 
@@ -99,7 +100,7 @@ union YYSTYPE
 #line 19 "src/analizadores/analizador_sintactico.y"
  numero num; char *ptr; 
 
-#line 103 "include/auxiliares/definiciones.h"
+#line 104 "include/auxiliares/definiciones.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

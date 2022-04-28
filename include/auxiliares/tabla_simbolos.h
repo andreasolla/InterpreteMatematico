@@ -40,7 +40,7 @@ void vaciar_workspace();
 void eliminar_variable(char *nombre);
 
 int buscar_lexema(char *lexema);
-void anadir_variable(char *nombre, numero num);
+int anadir_variable(char *nombre, numero num);
 void anadir_libreria(char *nombre);
 
 numero obtener_valor(char *nombre);

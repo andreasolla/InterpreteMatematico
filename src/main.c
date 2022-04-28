@@ -14,14 +14,12 @@ int main(int argc, char *argv[])
     printf("Para ayuda escribe 'help'\n");
 
     printf("\n        ╭──────────────────────────────────╮\n");
-    //printf("╭─┤FINALIZANDO...   ┳━━┳ノ( º _ ºノ) │ \n");
-    printf("        │ Bienvenido...\t\t\t   │\n");
+    printf("        │ Bienvenid@...\t\t\t   │\n");
     printf("        │ Si tienes dudas escribe 'help'   │\n");
     printf("        └──────────────────────────────────╯\n");
     printf("(╮°-°)╮╱\n\n");
 
     realizar_analisis();
-
 
     destruir_tabla();
 

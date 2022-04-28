@@ -33,7 +33,7 @@
 %token LIMITE_EOF
 
 %left OPERADOR_SUMA OPERADOR_RESTA
-%left OPERADOR_MULT OPERADOR_DIV
+%left OPERADOR_MULT OPERADOR_DIV OPERADOR_MODULO
 
 %token SEPARADOR_PAR_IZQ
 %token SEPARADOR_PAR_DER
@@ -76,9 +76,8 @@
 %%
 
 input: %empty
-    | input line {if(leyendo_archivo) { printf("\n%s", prompt_archivo); } else { printf("\n%s", prompt); }}
-    | input op {if(leyendo_archivo) { printf("\n%s", prompt_archivo); } else { printf("\n%s", prompt); }}
-    | input LIMITE_EOF { printf("FIN ARCHIVO\n"); leyendo_archivo=0; printf("\n%s", prompt);}
+    | input line {if(leyendo_archivo) { printf("\n%s", prompt_archivo); } else { printf("\n%s", prompt); } liberar_direcciones(); }
+    | input LIMITE_EOF { printf("FIN ARCHIVO\n"); leyendo_archivo=0; printf("\n%s", prompt); liberar_direcciones(); }
 ;
 
 line: BLANCO
@@ -90,23 +89,24 @@ line: BLANCO
 
 op: KW_HELP { help(); }
     | KW_CLEAR { clear(NULL); }
-    | KW_CLEAR SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER  { if(id_definido($3)) { clear($3); } else {lanzar_error(ERROR_ID_NO_DEFINIDO); } free($3); }
-    | KW_LOAD SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { if(!leyendo_archivo) { leyendo_archivo=1; load($3); } else { lanzar_error(ERROR_2_ARCHIVO); } free($3); }
+    | KW_CLEAR SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER  { if(id_definido($3)) { clear($3); } else {lanzar_error(ERROR_ID_NO_DEFINIDO); } }
+    | KW_LOAD SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { if(!leyendo_archivo) { leyendo_archivo=1; load($3); } else { lanzar_error(ERROR_2_ARCHIVO); } }
     | KW_WORKSPACE { workspace(); }
-    | KW_QUIT { if(leyendo_archivo) {lanzar_error(ERROR_SALIR_ARCHIVO)} else { finalizar(); return 0; } }
-    | KW_IMPORT SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { import($3); free($3); }
-    | KW_IMPORT SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER { import($3); free($3); }
+    | KW_QUIT { if(leyendo_archivo) {lanzar_error(ERROR_SALIR_ARCHIVO); } else { finalizar(); return 0; } }
+    | KW_IMPORT SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { import($3); }
+    | KW_IMPORT SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER { import($3); }
 ;
 
 expr: INTEGER { $$.valor.entero = $1.valor.entero; $$.tipo = 'i'; }
     | FLOAT { $$.valor.flotante = $1.valor.flotante; $$.tipo = 'f'; }
-    | ID { if(id_definido($1)) {$$ = obtener_valor($1);} else {lanzar_error(ERROR_ID_NO_DEFINIDO); hay_error=1; } free($1); }
-    | ID OPERADOR_IGUAL expr { anadir_variable($1, $3); $$ = $3; free($1); }
+    | ID { if(id_definido($1)) {$$ = obtener_valor($1);} else {lanzar_error(ERROR_ID_NO_DEFINIDO); hay_error=1; } }
+    | ID OPERADOR_IGUAL expr { if(anadir_variable($1, $3)) { $$ = $3; } else {hay_error=1;} }
     | expr OPERADOR_SUMA expr { $$ = operar($1, $3, '+'); }
     | expr OPERADOR_RESTA expr { $$ = operar($1, $3, '-'); }
     | expr OPERADOR_MULT expr { $$ = operar($1, $3, '*'); }
     | expr OPERADOR_DIV expr { $$ = operar($1, $3, '/'); }
     | expr OPERADOR_EXP expr { $$ = operar($1, $3, '^'); }
+    | expr OPERADOR_MODULO expr { $$ = operar($1, $3, '%'); }
     | OPERADOR_RESTA expr %prec NEG { if($2.tipo == 'f') {$$.valor.flotante = -$2.valor.flotante; $$.tipo = 'f'; } else {$$.valor.entero = -$2.valor.entero; $$.tipo = 'i'; } }
     | OPERADOR_SUMA expr { if($2.tipo == 'f') {$$.valor.flotante = $2.valor.flotante; $$.tipo = 'f'; } else {$$.valor.entero = $2.valor.entero; $$.tipo = 'i'; } }
     | SEPARADOR_PAR_IZQ expr SEPARADOR_PAR_DER { $$ = $2; }
@@ -142,13 +142,19 @@ numero operar(numero a, numero b, char op){
                 resultado.valor.flotante = valorF(a) * valorF(b);
                 break;
             case '/':
-                resultado.valor.flotante = valorF(a) / valorF(b);
+                if(valorF(b) == 0){
+                    lanzar_error(ERROR_DIVISION_POR_CERO);
+                    hay_error=1;
+                } else {
+                    resultado.valor.flotante = valorF(a) / valorF(b);
+                }
                 break;
             case '^':
                 resultado.valor.flotante = pow(valorF(a), valorF(b));
                 break;
             case '%':
                 lanzar_error(ERROR_OPERACION_ENTERA);
+                hay_error=1; //Para que no se ejecute el resto de la operacion
                 break;
         }
     } else {
@@ -165,7 +171,12 @@ numero operar(numero a, numero b, char op){
                 resultado.valor.entero = a.valor.entero * b.valor.entero;
                 break;
             case '/':
-                resultado.valor.entero = a.valor.entero / b.valor.entero;
+                if(valorF(b) == 0){
+                    lanzar_error(ERROR_DIVISION_POR_CERO);
+                    hay_error=1;
+                } else {
+                    resultado.valor.entero = a.valor.entero / b.valor.entero;
+                }
                 break;
             case '^':
                 resultado.valor.entero = pow(a.valor.entero, b.valor.entero);
@@ -181,6 +192,7 @@ numero operar(numero a, numero b, char op){
 
 void realizar_analisis() {
     printf("%s", prompt);
+    inicializar_analizador_lexico();
     yyparse();
 }
 
@@ -193,7 +205,6 @@ void finalizar() {
     printf("│ ╰──────────────────────────────────╯\n");
     printf("│  Hasta pronto! \n");
     printf("╰───────────────────────────────────────────────\n\n" COLOR_RESET);
-    //return 0;
 }
 
 void yyerror(char const *msg) {

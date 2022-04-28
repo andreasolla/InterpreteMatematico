@@ -14,7 +14,7 @@ elemento_tabla *tabla_simbolos;
 // Funciones del workspace -> keywords
 char *kw_lexemas[6] = {"help", "quit", "load", "workspace", "clear", "import"};
 int kw_comp_lexicos[6] = {KW_HELP, KW_QUIT, KW_LOAD, KW_WORKSPACE, KW_CLEAR, KW_IMPORT};
-// double (*)()[5] = {};
+
 
 void anadir_libreria(char *nombre);
 int buscar_funcion(char *nombre);
@@ -84,6 +84,7 @@ void _anadir_constantes() {
 elemento_tabla *_buscar(char *cadena)
 {
     elemento_tabla *el;
+
     HASH_FIND_STR(tabla_simbolos, cadena, el);
 
     return el;
@@ -207,7 +208,7 @@ int buscar_lexema(char *lexema)
         codigo = FUNC;
     }
     else
-    { // faltaria buscar la funcion en las librerias incluidas
+    {
         // Si no esta en la tabla, es un identificador
         codigo = ID;
     }
@@ -216,7 +217,7 @@ int buscar_lexema(char *lexema)
 }
 
 // Funcion para añadir una variable
-void anadir_variable(char *nombre, numero num)
+int anadir_variable(char *nombre, numero num)
 {
     elemento_tabla *el = _buscar(nombre);
 
@@ -232,11 +233,15 @@ void anadir_variable(char *nombre, numero num)
         _anadir_elemento(el);
     } else if(el->cont.valor.constante=='c') {
         lanzar_error(ERROR_MODIFICAR_CONSTANTE);
+        return 0;
     } else if(el->componente_lexico==ID) {
         el->cont.valor = num;
     } else {
         lanzar_error(ERROR_NO_VARIABLE);
+        return 0;
     }
+    
+    return 1;
 }
 
 // Funcion para añadir una libreria importada

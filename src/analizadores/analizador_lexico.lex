@@ -61,6 +61,11 @@ PUNTO_Y_COMA ";"
     /*Reescribo el tamaño de buffer de flex a 4096 bytes*/
     #define YY_BUF_SIZE 4096
 
+    #define MAX_DIR_GUARDADAS 32
+
+    int num_dir_guardadas;
+    void *dir_guardadas[MAX_DIR_GUARDADAS];
+
     void terminar_archivo();
 %}
 
@@ -96,9 +101,9 @@ PUNTO_Y_COMA ";"
     return OPERADOR_EXP;   
 }
 
- /*{MODULO} {
+{MODULO} {
     return OPERADOR_MODULO;
-}*/
+}
 
 {IGUAL} {
     return OPERADOR_IGUAL;
@@ -137,7 +142,10 @@ PUNTO_Y_COMA ";"
     int aux = buscar_lexema(yytext);
     if( aux == ID || aux == FUNC || aux == LIBR) {
         yylval.ptr = strdup(yytext);
+
+        dir_guardadas[num_dir_guardadas++] = yylval.ptr;
     }
+
     return buscar_lexema(yytext);
 }
 
@@ -145,6 +153,9 @@ PUNTO_Y_COMA ";"
     yylval.ptr = malloc(sizeof(char)*(strlen(yytext)-1));
     strncpy(yylval.ptr, yytext+1, strlen(yytext)-2);
     yylval.ptr[strlen(yytext)-2] = '\0';
+
+    dir_guardadas[num_dir_guardadas++] = yylval.ptr;
+
     return ARCHIVO;
 }
 
@@ -161,7 +172,17 @@ PUNTO_Y_COMA ";"
 //Procedimiento para iniciar el análisis léxico
 void inicializar_analizador_lexico()
 {
+    num_dir_guardadas = 0;
+
     yyin = stdin;
+}
+
+void liberar_direcciones() {
+    int i;
+    for(i=0; i<num_dir_guardadas; i++) {
+        free(dir_guardadas[i]);
+    }
+    num_dir_guardadas = 0;
 }
 
 void leer_archivo(char *nombre_archivo)
@@ -185,7 +206,6 @@ void terminar_archivo()
 
 //Procedimientos de liberación de memoria para la finalización del análisis léxico
 void finalizar_analisis() {
-    //fclose(yyin); //Cierro el archivo
     yylex_destroy(); //Libero  la memria de yylex
 }
 
