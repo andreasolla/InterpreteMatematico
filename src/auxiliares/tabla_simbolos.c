@@ -8,7 +8,6 @@
 
 #include "auxiliares/definiciones.h"
 
-#define LIBR 400
 
 elemento_tabla *tabla_simbolos;
 
@@ -58,6 +57,29 @@ void _anadir_funcion(void *handle, char *funcion)
     _anadir_elemento(el);
 }
 
+//Función para añadir las constantes
+void _anadir_constantes() {
+    elemento_tabla *el;
+
+    el = malloc(sizeof(elemento_tabla));
+    el->id = malloc((strlen("pi") + 1) * sizeof(char));
+    strcpy(el->id, "pi");
+    el->componente_lexico = ID;
+    el->cont.valor.tipo = 'f';
+    el->cont.valor.valor.flotante = M_PI;
+    el->cont.valor.constante = 'c';
+    _anadir_elemento(el);
+
+    el = malloc(sizeof(elemento_tabla));
+    el->id = malloc((strlen("e") + 1) * sizeof(char));
+    strcpy(el->id, "e");
+    el->componente_lexico = ID;
+    el->cont.valor.tipo = 'f';
+    el->cont.valor.valor.flotante = M_E;
+    el->cont.valor.constante = 'c';
+    _anadir_elemento(el);
+}
+
 // Función que devuelve NULL si el elemento no está, si no, devuelve el elemento
 elemento_tabla *_buscar(char *cadena)
 {
@@ -81,12 +103,7 @@ void crear_tabla()
         _anadir(kw_lexemas[i], kw_comp_lexicos[i]);
     }
 
-    // elemento_tabla *el;
-    //_anadir("sin", FUNC);
-    // el = _buscar("sin");
-    // el->cont.funcion = sin;
-
-    anadir_libreria("libm.so");
+    _anadir_constantes();
 }
 
 // Función que vacía la tabla y libera la memoria
@@ -213,6 +230,12 @@ void anadir_variable(char *nombre, numero num)
         el->cont.valor = num;
 
         _anadir_elemento(el);
+    } else if(el->cont.valor.constante=='c') {
+        lanzar_error(ERROR_MODIFICAR_CONSTANTE);
+    } else if(el->componente_lexico==ID) {
+        el->cont.valor = num;
+    } else {
+        lanzar_error(ERROR_NO_VARIABLE);
     }
 }
 
@@ -278,7 +301,7 @@ int id_definido(char *nombre)
 {
     elemento_tabla *el = _buscar(nombre);
 
-    if (el != NULL && strcmp(el->id, nombre))
+    if (el != NULL && el->componente_lexico ==ID)
     {
         return 1;
     }

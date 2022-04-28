@@ -8,6 +8,10 @@
 #define ERROR_2_ARCHIVO "No se puede cargar un archivo dentro de otro"
 #define ERROR_SINTACTICO "Expresión no reconocida"
 #define ERROR_LIBRERIA "Error al importar la librería"
+#define ERROR_MODIFICAR_CONSTANTE "No se puede modificar, es una constante"
+#define ERROR_NO_VARIABLE "No es una variable"
+#define ERROR_OPERACION_ENTERA "No se puede realizar la operación con flotantes"
+#define ERROR_SALIR_ARCHIVO "No se puede salir desde un archivo"
 
 #define ERROR_TAM_LEXEMA_EXCEDIDO "Se ha excedido el tamaño máximo de lexema"
 #define ERROR_STRING_MAL_FORMADO "String sin cerrar"

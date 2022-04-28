@@ -37,6 +37,7 @@
 
 %token SEPARADOR_PAR_IZQ
 %token SEPARADOR_PAR_DER
+%token SEPARADOR_PUNTO_Y_COMA
 
 %precedence NEG
 %right OPERADOR_EXP
@@ -82,24 +83,25 @@ input: %empty
 
 line: BLANCO
     | expr BLANCO { if(!hay_error) { if($1.tipo == 'f') {printf("%f\n", $1.valor.flotante);} else {printf("%d\n", $1.valor.entero);} } else { hay_error = 0; } }
+    | expr SEPARADOR_PUNTO_Y_COMA BLANCO {}
     | op BLANCO
     | error BLANCO { yyclearin; yyerrok; }
 ;
 
-op: KW_HELP {printf("help\n%s", prompt);}
+op: KW_HELP { help(); }
     | KW_CLEAR { clear(NULL); }
-    | KW_CLEAR SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER  { if(id_definido($3)) { clear($3); } else {lanzar_error(ERROR_ID_NO_DEFINIDO); } }
-    | KW_LOAD SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { if(!leyendo_archivo) { leyendo_archivo=1; load($3); } else { lanzar_error(ERROR_2_ARCHIVO); } }
+    | KW_CLEAR SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER  { if(id_definido($3)) { clear($3); } else {lanzar_error(ERROR_ID_NO_DEFINIDO); } free($3); }
+    | KW_LOAD SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { if(!leyendo_archivo) { leyendo_archivo=1; load($3); } else { lanzar_error(ERROR_2_ARCHIVO); } free($3); }
     | KW_WORKSPACE { workspace(); }
-    | KW_QUIT { finalizar(); return 0; }
-    | KW_IMPORT SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { import($3); }
-    | KW_IMPORT SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER { import($3); }
+    | KW_QUIT { if(leyendo_archivo) {lanzar_error(ERROR_SALIR_ARCHIVO)} else { finalizar(); return 0; } }
+    | KW_IMPORT SEPARADOR_PAR_IZQ ARCHIVO SEPARADOR_PAR_DER { import($3); free($3); }
+    | KW_IMPORT SEPARADOR_PAR_IZQ ID SEPARADOR_PAR_DER { import($3); free($3); }
 ;
 
 expr: INTEGER { $$.valor.entero = $1.valor.entero; $$.tipo = 'i'; }
     | FLOAT { $$.valor.flotante = $1.valor.flotante; $$.tipo = 'f'; }
-    | ID { if(id_definido($1)) {$$ = obtener_valor($1);} else {lanzar_error(ERROR_ID_NO_DEFINIDO); hay_error=1; } }
-    | ID OPERADOR_IGUAL expr { anadir_variable($1, $3); $$ = $3; }
+    | ID { if(id_definido($1)) {$$ = obtener_valor($1);} else {lanzar_error(ERROR_ID_NO_DEFINIDO); hay_error=1; } free($1); }
+    | ID OPERADOR_IGUAL expr { anadir_variable($1, $3); $$ = $3; free($1); }
     | expr OPERADOR_SUMA expr { $$ = operar($1, $3, '+'); }
     | expr OPERADOR_RESTA expr { $$ = operar($1, $3, '-'); }
     | expr OPERADOR_MULT expr { $$ = operar($1, $3, '*'); }
@@ -143,7 +145,10 @@ numero operar(numero a, numero b, char op){
                 resultado.valor.flotante = valorF(a) / valorF(b);
                 break;
             case '^':
-                resultado.valor.flotante = 0;//pow(valorF(a), valorF(b));
+                resultado.valor.flotante = pow(valorF(a), valorF(b));
+                break;
+            case '%':
+                lanzar_error(ERROR_OPERACION_ENTERA);
                 break;
         }
     } else {
@@ -163,7 +168,10 @@ numero operar(numero a, numero b, char op){
                 resultado.valor.entero = a.valor.entero / b.valor.entero;
                 break;
             case '^':
-                resultado.valor.entero = 0;//pow(a.valor.entero, b.valor.entero);
+                resultado.valor.entero = pow(a.valor.entero, b.valor.entero);
+                break;
+            case '%':
+                resultado.valor.entero = a.valor.entero % b.valor.entero;
                 break;
         }
     }

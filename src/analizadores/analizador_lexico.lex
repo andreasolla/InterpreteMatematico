@@ -27,7 +27,7 @@ INT             {NUM}
 FLOAT           {NUM}\.{NUM}{EXP_DECIMAL}?|{NUM}{EXP_DECIMAL}|\.{NUM}{EXP_DECIMAL}?
 
 ID              {LETTER}({LETTER}|{DECIMAL_DIGIT})*
-NOMBRE_ARCHIVO ({LETTER}|{DECIMAL_DIGIT}|\/|-|\.)+({LETTER}|{DECIMAL_DIGIT}|\.|-)*
+NOMBRE_ARCHIVO  \".+\"
 
 /*OPERADORES*/
 
@@ -44,6 +44,7 @@ MODULO "%"
 
 P_IZQUIERDO "("
 P_DERECHO ")"
+PUNTO_Y_COMA ";"
 
 
 /*-----CABECERA DEL .c-----*/
@@ -113,6 +114,9 @@ P_DERECHO ")"
     return SEPARADOR_PAR_DER;   
 }
 
+{PUNTO_Y_COMA} {
+    return SEPARADOR_PUNTO_Y_COMA;
+}
 
  /*NUMEROS*/
 
@@ -126,17 +130,21 @@ P_DERECHO ")"
     yylval.num.valor.flotante = atof(yytext); 
     yylval.num.tipo = 'f';
     return FLOAT;
-    
 }
 
  /*VARIABLES*/
 {ID} {
-    yylval.ptr = strdup(yytext);
-    return buscar_lexema(yylval.ptr);
+    int aux = buscar_lexema(yytext);
+    if( aux == ID || aux == FUNC || aux == LIBR) {
+        yylval.ptr = strdup(yytext);
+    }
+    return buscar_lexema(yytext);
 }
 
 {NOMBRE_ARCHIVO} {
-    yylval.ptr = strdup(yytext);
+    yylval.ptr = malloc(sizeof(char)*(strlen(yytext)-1));
+    strncpy(yylval.ptr, yytext+1, strlen(yytext)-2);
+    yylval.ptr[strlen(yytext)-2] = '\0';
     return ARCHIVO;
 }
 

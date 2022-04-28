@@ -4,6 +4,9 @@
 
 #include "auxiliares/uthash.h"
 
+
+#define LIBR 400
+
 typedef struct numero{
         
         union{
@@ -11,6 +14,7 @@ typedef struct numero{
             float flotante;
         }valor;
         char tipo; //'i' para integer y 'f' para float
+        char constante; //'c' para constante y 'v' para variable
 
 } numero;
 typedef struct elemento_tabla
