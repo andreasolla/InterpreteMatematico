@@ -85,6 +85,8 @@ sudo apt install flex
 sudo apt install bison
 ```
 
+Para la implementación de la tabla de símbolos se utiliza [uthash](https://troydhanson.github.io/uthash/).
+
 ### Compilar y ejecutar
   
 Se puede ejecutar el script compilar_y_ejecutar.sh, que se encarga de crear el directorio necesario, compilar y ejecutar. Cmake se encarga de compilar también los archivos .lex y .y.
